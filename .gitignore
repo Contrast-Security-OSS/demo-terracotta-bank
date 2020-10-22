@@ -1,6 +1,5 @@
 .terraform.tfstate.lock.info
 build
 cache
-gradle
 contrast_security.yaml
 contrast.jar
