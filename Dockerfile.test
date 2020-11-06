@@ -1,0 +1,16 @@
+FROM ubuntu
+
+RUN apt update
+
+RUN apt -y install openjdk-8-jdk
+
+RUN apt -y install firefox xvfb
+
+ADD . /app
+
+WORKDIR /app
+
+RUN ./gradlew build -x test
+RUN export DISPLAY="localhost:0.0"
+
+ENTRYPOINT [ "./gradlew", "cleanTest", "test"]

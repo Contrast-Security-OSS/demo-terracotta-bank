@@ -39,12 +39,21 @@ You can run Terracotta Bank within a Docker container.
 
 # Running automated tests
 
-There is a test script which you can use to reveal vulnerabilities which requires node and puppeteer.
+There are a number of Seleneum tests which you can use to reveal vulnerabilities.
 
 1. Place a `contrast_security.yaml` file into the application's root folder.
 1. Place a `contrast.jar` into the application's root folder.
 1. Ensure you have the Firefox browser installed.
 1. Run the application using `./gradlew cleanTest test`
+
+# Running automated tests in Docker
+ 
+There are a number of Seleneum tests which you can use to reveal vulnerabilities in a Docker container.
+ 
+ 1. Place a `contrast_security.yaml` file into the application's root folder.
+ 1. Place a `contrast.jar` into the application's root folder.
+ 1. Build the Docker container using `docker build . -f Dockerfile.test -t terracotta-test`
+ 1. Run the container using `.docker run terracotta-test:latest`
 
 ## Updating the Docker Image
 

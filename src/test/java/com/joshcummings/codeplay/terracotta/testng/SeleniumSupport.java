@@ -31,9 +31,11 @@ public class SeleniumSupport {
         profile.setPreference("network.proxy.http", "localhost");
         profile.setPreference("network.proxy.http_port", 8081);
         profile.setPreference("network.proxy.ssl", "localhost");
-        profile.setPreference("network.proxy.ssl_port", 8081);        
+        profile.setPreference("network.proxy.ssl_port", 8081);
+
 		
 		FirefoxOptions options = new FirefoxOptions();
+		options.addArguments("-headless");
 		options.setProfile(profile);
 
 		return new FirefoxDriver(options);
