@@ -51,9 +51,8 @@ There are a number of Seleneum tests which you can use to reveal vulnerabilities
 There are a number of Seleneum tests which you can use to reveal vulnerabilities in a Docker container.
  
  1. Place a `contrast_security.yaml` file into the application's root folder.
- 1. Place a `contrast.jar` into the application's root folder.
  1. Build the Docker container using `docker build . -f Dockerfile.test -t terracotta-test`
- 1. Run the container using `.docker run terracotta-test:latest`
+ 1. Run the container using `docker run -v $PWD/contrast_security.yaml:/etc/contrast/java/contrast_security.yaml terracotta-test:latest`
 
 ## Updating the Docker Image
 

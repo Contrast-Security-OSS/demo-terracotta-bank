@@ -1,0 +1,19 @@
+contrast_security.yaml
+contrast.jar
+
+#exclude hidden
+.gradle
+.idea
+.terraform
+
+#exclude build
+bin/*
+build/*
+cache/*
+
+#exclude
+Dockerfile
+*.sh
+*.tf
+*.tfstate
+*.tfvars

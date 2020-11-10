@@ -4,13 +4,15 @@ RUN apt update
 
 RUN apt -y install openjdk-8-jdk
 
-RUN apt -y install firefox xvfb
+RUN apt -y install firefox xvfb curl
 
 ADD . /app
 
 WORKDIR /app
 
+#Add Contrast agent
+RUN curl --fail --silent --location "https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.contrastsecurity&a=contrast-agent&v=LATEST" -o contrast.jar
+
 RUN ./gradlew build -x test
-RUN export DISPLAY="localhost:0.0"
 
 ENTRYPOINT [ "./gradlew", "cleanTest", "test"]
