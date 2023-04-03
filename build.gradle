@@ -49,16 +49,16 @@ ext {
 
 bootRun {
 	systemProperty "jdk.xml.entityExpansionLimit", "0"
-	jvmArgs = ["-javaagent:contrast.jar", "-Dcontrast.config.path=contrast_security.yaml", "-Dcontrast.agent.java.standalone_app_name=terracotta-bank", "-Dcontrast.libraries.reporting=true", "-Dcontrast.application.session_metadata=branchName=${git.branch.getCurrent().getName()},committer=${git.head().author.name},commitHash=${git.head().abbreviatedId}"]
+	jvmArgs = ["-javaagent:contrast.jar", "-Dcontrast.config.path=contrast_security.yaml", "-Dcontrast.application.name=terracotta-bank", "-Dcontrast.application.session_metadata=branchName=${git.branch.getCurrent().getName()},committer=${git.head().author.name},commitHash=${git.head().abbreviatedId}"]
 	//RASP
-	//jvmArgs = ["-javaagent:contrast.jar", "-Dcontrast.config.path=contrast_security.yaml", "-Dcontrast.agent.java.standalone_app_name=terracotta-bank", "-Dcontrast.server.name=Prod01", "-Dcontrast.server.environment=Production"]
+	//jvmArgs = ["-javaagent:contrast.jar", "-Dcontrast.config.path=contrast_security.yaml", "-Dcontrast.application.name=terracotta-bank", "-Dcontrast.server.name=Prod01", "-Dcontrast.server.environment=Production"]
 }
 
 jib {
 	from.image = 'tomcat:8.0.53-jre8-alpine'
 	to.image = 'terracotta-bank:1.0'
 	container.appRoot = '/usr/local/tomcat/webapps/ROOT'
-	container.environment = [JAVA_OPTS : '-javaagent:contrast.jar -Dcontrast.agent.java.standalone_app_name=terracotta-bank -Xmx1G -Djdk.xml.entityExpansionLimit=0']
+	container.environment = [JAVA_OPTS : '-javaagent:contrast.jar -Dcontrast.application.name=terracotta-bank -Xmx1G -Djdk.xml.entityExpansionLimit=0']
 }
 
 test {
@@ -67,7 +67,7 @@ test {
 	description = 'Runs functional tests'
 	dependsOn 'jar'
 	//Standard functional testing, no attacks included
-	jvmArgs = ["-javaagent:${project.projectDir}/contrast.jar", "-Dcontrast.config.path=contrast_security.yaml", "-Dcontrast.agent.java.standalone_app_name=terracotta-bank","-Dcontrast.libraries.reporting=true", "-Dcontrast.env=qa", "-Dcontrast.server.name=gradle"]
+	jvmArgs = ["-javaagent:${project.projectDir}/contrast.jar", "-Dcontrast.config.path=contrast_security.yaml", "-Dcontrast.application.name=terracotta-bank", "-Dcontrast.env=qa", "-Dcontrast.server.name=gradle"]
 }
 
 jmh {

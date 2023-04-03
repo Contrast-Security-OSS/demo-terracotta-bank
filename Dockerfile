@@ -7,7 +7,7 @@ COPY build/libs/terracotta-bank-servlet-0.0.1-SNAPSHOT.war /usr/local/tomcat/web
 ADD https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.contrastsecurity&a=contrast-agent&v=LATEST /opt/contrast/contrast.jar
 
 #Enable Contrast
-ENV JAVA_OPTS='-javaagent:/opt/contrast/contrast.jar -Dcontrast.agent.java.standalone_app_name=terracotta-bank'
+ENV JAVA_OPTS='-javaagent:/opt/contrast/contrast.jar -Dcontrast.application.name=terracotta-bank'
 
 EXPOSE 8080
 

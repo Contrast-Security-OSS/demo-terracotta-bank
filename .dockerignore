@@ -8,7 +8,6 @@ contrast.jar
 
 #exclude build
 bin/*
-build/*
 cache/*
 
 #exclude
