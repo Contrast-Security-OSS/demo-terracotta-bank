@@ -58,9 +58,10 @@ public class RegisterServlet extends HttpServlet {
 		this.userService = userService;
 	}
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	/* Not implemented
+	  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.getRequestDispatcher("/webapp/WEB-INF/register.jsp").forward(request, response);
-	}
+	}*/
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String username = request.getParameter("registerUsername");

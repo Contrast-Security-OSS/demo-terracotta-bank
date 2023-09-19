@@ -61,8 +61,4 @@ public class AccountServlet extends HttpServlet {
 			request.getRequestDispatcher("/WEB-INF/accounts.jsp").forward(request, response);
 		}
 	}
-
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doGet(request, response);
-	}
 }

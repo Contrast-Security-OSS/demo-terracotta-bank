@@ -39,7 +39,6 @@ import com.joshcummings.codeplay.terracotta.servlet.LogoutServlet;
 import com.joshcummings.codeplay.terracotta.servlet.MakeDepositServlet;
 import com.joshcummings.codeplay.terracotta.servlet.MessagesServlet;
 import com.joshcummings.codeplay.terracotta.servlet.RegisterServlet;
-import com.joshcummings.codeplay.terracotta.servlet.SendResponseServlet;
 import com.joshcummings.codeplay.terracotta.servlet.SiteStatisticsServlet;
 import com.joshcummings.codeplay.terracotta.servlet.TransferMoneyServlet;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
@@ -199,11 +198,6 @@ public class WebConfiguration extends WebMvcConfigurerAdapter {
 	@Bean
 	public ServletRegistrationBean registerServlet(AccountService accountService, UserService userService) {
 		return this.servlet(new RegisterServlet(accountService, userService), "/register");
-	}
-
-	@Bean
-	public ServletRegistrationBean sendResponseServlet(EmailService emailService) {
-		return this.servlet(new SendResponseServlet(emailService), "/sendResponse");
 	}
 
 	@Bean

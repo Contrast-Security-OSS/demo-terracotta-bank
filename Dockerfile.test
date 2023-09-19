@@ -1,18 +1,18 @@
-FROM ubuntu
+FROM openjdk:8-jdk
 
-RUN apt update
+# Install Firefox and dependencies
+RUN apt-get update && apt-get install -y firefox-esr unzip wget
 
-RUN apt -y install openjdk-8-jdk
-
-RUN apt -y install firefox xvfb curl
+# Install Selenium
+RUN wget -O /tmp/selenium-server-standalone.jar https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar
 
 ADD . /app
 
 WORKDIR /app
 
 #Add Contrast agent
-RUN curl --fail --silent --location "https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.contrastsecurity&a=contrast-agent&v=LATEST" -o contrast.jar
+COPY --from=contrast/agent-java:latest /contrast/contrast-agent.jar contrast.jar
 
-RUN ./gradlew build -x test
+RUN ./gradlew build -x test --stacktrace
 
-ENTRYPOINT [ "./gradlew", "cleanTest", "test"]
+ENTRYPOINT [ "./gradlew", "cleanTest", "test" ]
