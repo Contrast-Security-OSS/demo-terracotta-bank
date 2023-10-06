@@ -62,11 +62,6 @@ public class ChangePasswordServlet extends HttpServlet {
 		response.setStatus(401);
 	}
 
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doPost(request, response);
-	}
-
 	private boolean changePassword(HttpServletRequest request, HttpServletResponse response, User loggedInUser)
 			throws ServletException, IOException {
 

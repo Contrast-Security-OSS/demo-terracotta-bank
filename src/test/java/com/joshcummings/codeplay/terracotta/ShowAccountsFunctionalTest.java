@@ -16,25 +16,25 @@
 package com.joshcummings.codeplay.terracotta;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.apache.http.client.methods.RequestBuilder.get;
-import static org.apache.http.client.methods.RequestBuilder.post;
+public class ShowAccountsFunctionalTest extends AbstractEmbeddedTomcatSeleniumTest {
+    @BeforeClass(alwaysRun = true)
+    public void doLogin() {
+        login("john.coltraine", "j0hn");
+    }
 
-public class ForgotPasswordFunctionalTest extends AbstractEmbeddedTomcatSeleniumTest  {
-    @Test(groups="web")
-    public void testForgotPassword() {
-        String validAccount = http.postForContent(post("/forgotPassword")
-                .addParameter("forgotPasswordAccount", "admin"));
-
-        Assert.assertTrue(validAccount.contains("Your password is (admin)"));
+    @AfterClass(alwaysRun = true)
+    public void doLogout() {
+        logout();
     }
 
     @Test(groups = "web")
-    public void testForgotPasswordCannotBePerformedWithGet() {
-        int status = http.getForStatus(get("/forgotPassword")
-                .addParameter("forgotPasswordAccount", "user"));
+    public void testShowAccounts() {
+        goToPage("/showAccounts");
 
-        Assert.assertEquals(status, 400);
+        Assert.assertTrue(driver.getPageSource().contains("Accounts"));
     }
 }

@@ -12,6 +12,7 @@ cache/*
 
 #exclude
 Dockerfile
+Dockerfile.test
 *.sh
 *.tf
 *.tfstate
