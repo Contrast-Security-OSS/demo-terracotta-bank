@@ -5,3 +5,4 @@ contrast_security.yaml
 contrast.jar
 .idea
 *.sh
+.gradle
