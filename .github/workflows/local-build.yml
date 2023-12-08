@@ -72,7 +72,6 @@ jobs:
           file: Dockerfile
           target: build
           platforms: linux/amd64,linux/arm64
-          
           tags: contrastsecuritydemo/terracotta-bank:4.0
           push: false
       - 
