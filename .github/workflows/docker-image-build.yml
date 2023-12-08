@@ -25,7 +25,7 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           buildkitd-flags: --debug
       - 
         name: Login to Docker Hub
@@ -36,7 +36,7 @@ jobs:
       -
         name: Build
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64 --target runtime -t contrastsecuritydemo/terracotta-bank:3.1-no-agent . --push
+          docker buildx build --platform linux/arm64 --target runtime -t contrastsecuritydemo/terracotta-bank:3.1-no-agent . --push
         # uses: docker/build-push-action@v5
         # with:
         #   context: .
