@@ -36,7 +36,7 @@ jobs:
       -
         name: Build
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64 --target runtime -t contrastsecuritydemo/terracotta-bank:3.1-no-agent . 
+          docker buildx build --platform linux/amd64,linux/arm64 --target runtime -t contrastsecuritydemo/terracotta-bank:3.1-no-agent . --load
         # uses: docker/build-push-action@v5
         # with:
         #   context: .
