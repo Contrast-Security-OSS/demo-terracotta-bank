@@ -8,7 +8,7 @@ COPY .git/ .git/
 COPY build.gradle settings.gradle ./
 COPY evil/ evil/
 COPY src/ src/
-RUN gradle build --stacktrace
+RUN gradle build -x test --stacktrace
 
 #
 # RUNTIME STAGE
