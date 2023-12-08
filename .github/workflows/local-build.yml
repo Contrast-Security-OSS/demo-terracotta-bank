@@ -71,3 +71,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: false
           tags: contrastsecuritydemo/terracotta-bank:4.0
+      - 
+        name: Image digest                  
+        run: echo ${{ steps.docker_build.outputs.digest }}
