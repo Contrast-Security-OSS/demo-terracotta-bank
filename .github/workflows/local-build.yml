@@ -44,7 +44,6 @@ jobs:
 
   Build-Docker:
     name: Build the no-agent docker image
-    id: docker_build
     runs-on: ubuntu-latest
 
     steps:
