@@ -1,4 +1,4 @@
-name: Terracotta Bank - Docker Image Build
+name: Terracotta Bank - Docker Image Testing
 
 on:
   pull_request:
