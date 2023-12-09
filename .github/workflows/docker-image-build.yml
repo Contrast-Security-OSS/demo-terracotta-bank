@@ -35,16 +35,14 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       -
         name: Build
-        run: |
-          docker buildx build --platform linux/arm64 --target runtime -t contrastsecuritydemo/terracotta-bank:3.1-no-agent . --push
-        # uses: docker/build-push-action@v5
-        # with:
-        #   context: .
-        #   file: Dockerfile
-        #   target: build
-        #   platforms: linux/amd64,linux/arm64
-        #   tags: contrastsecuritydemo/terracotta-bank:4.0
-        #   push: false
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          target: build
+          platforms: linux/arm64
+          tags: contrastsecuritydemo/terracotta-bank:4.0
+          push: false
       - 
         name: Image digest                  
         run: echo ${{ steps.docker_build.outputs.digest }} yeah
