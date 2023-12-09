@@ -25,7 +25,7 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          platforms: linux/amd64, linux/arm64/v8
+          platforms: linux/amd64,linux/arm64/v8
           buildkitd-flags: --debug
       - 
         name: Login to Docker Hub
@@ -39,10 +39,13 @@ jobs:
         with:
           context: .
           file: Dockerfile
-          target: build
-          platforms: linux/amd64, linux/arm64/v8
+          platforms: linux/amd64,linux/arm64/v8
           tags: contrastsecuritydemo/terracotta-bank:4.0
-          push: false
+          push: true
+        continue-on-error: true
       - 
         name: Image digest                  
         run: echo ${{ steps.docker_build.outputs.digest }} yeah
+      - 
+        name: Docker Buildx Inspect
+        run: docker buildx inspect
