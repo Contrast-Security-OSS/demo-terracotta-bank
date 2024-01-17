@@ -49,7 +49,7 @@ ext {
 
 bootRun {
 	systemProperty "jdk.xml.entityExpansionLimit", "0"
-	jvmArgs = ["-javaagent:contrast.jar", "-Dcontrast.config.path=contrast_security.yaml", "-Dcontrast.application.session_metadata=branchName=${git.branch.getCurrent().getName()}"]
+	jvmArgs = ["-javaagent:contrast.jar", "-Dcontrast.config.path=contrast_security.yaml"]
 }
 
 jib {
@@ -65,7 +65,7 @@ test {
 	description = 'Runs functional tests'
 	dependsOn 'jar'
 	//Standard functional testing, no attacks included
-	jvmArgs = ["-javaagent:${project.projectDir}/contrast.jar", "-Dcontrast.config.path=contrast_security.yaml", "-Dcontrast.server.environment=qa", "-Dcontrast.server.name=gradle"]
+	jvmArgs = ["-javaagent:${project.projectDir}/contrast.jar", "-Dcontrast.config.path=contrast_security.yaml", "-Dcontrast.server.name=gradle"]
 }
 
 jmh {
