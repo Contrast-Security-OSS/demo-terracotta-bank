@@ -3,11 +3,12 @@
 #This script takes hostname as a parameter. If no paramter is provided, then hostname will default to localhost
 # Check if at least one parameter is provided
 
-# Example to run the script - ./redeploy.sh http://docker-vm
+# Example to run the script - ./redeploy.sh http://example.com
 
 if [ "$#" -eq 0 ]; then
     hostname='http://localhost'
     echo "You can also provide a custom hostname as a parameter"
+    echo "Example to run the script - ./redeploy.sh example.com"
 else
     hostname="$1"
     
@@ -95,4 +96,3 @@ echo "Application failed to start within the specified time. Check the logs for 
 exit 1
 
 
-# Query teamserver to see if auto remediated
