@@ -38,11 +38,11 @@ git checkout -b "$new_branch"
 # This should create updated session metadata and create a new vulnerability instance
 
 echo "Starting Terracota-Bank"
-./start.sh
+nohup ./gradlew bootRun -x test > /dev/null 2>&1 &
 
-# Wait 10 seconds for the app to start
-echo "waiting 20 seconds for app to start"
-sleep 20
+# Wait 30 seconds for the app to start
+echo "waiting 30 seconds for app to start"
+sleep 30
 
 # We will now execercise the login endpoint and monitor for the SQL injection vulnerability
 
@@ -68,7 +68,7 @@ check_application_running() {
 }
 
 # Maximum number of attempts to check if the application is running
-max_attempts=30
+max_attempts=150
 current_attempt=0
 
 # Check if the application is running using a while loop

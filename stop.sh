@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# Specify the process ID
-process_pid=$(pgrep -f "gradlew")
-
-# Stop the process using kill
-kill "$process_pid"
-
-echo "Java application stopped."
+# Check if there are active Java processes
+if pgrep -f "java" > /dev/null; then
+    # Kill all Java applications
+    pkill -f "java"
+    echo "Terracotta Bank Stopped"
+else
+    echo "Application was not running, so no action taken"
+fi
