@@ -28,15 +28,13 @@ public class UpdateSessionMetadata {
             process = Runtime.getRuntime().exec("git rev-parse HEAD");
             String commitHash = readProcessOutput(process).trim();
 
-            process = Runtime.getRuntime().exec("git config user.name");
-            String committerName = readProcessOutput(process).trim();
-
+            
             process = Runtime.getRuntime().exec("git config --get remote.origin.url");
             String remoteUrl = readProcessOutput(process).trim();
 
             // Combine all values into a single string
-            return String.format("branchName=%s,commitHash=%s,committer=%s,repository=%s,environment=dev",
-                    branch, commitHash, committerName, remoteUrl);
+            return String.format("branchName=%s,commitHash=JohnDoe,committer=%s,repository=%s,environment=dev",
+                    branch, commitHash, remoteUrl);
         } catch (IOException e) {
             System.err.println("An error occurred: " + e.getMessage());
             return null;
