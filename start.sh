@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+# Before Starting the Application we will update the Session Metadata
+java UpdateSessionMetadata
+
 # Start the application as a separate process in the background
 nohup ./gradlew bootRun -x test > /dev/null 2>&1 &
 

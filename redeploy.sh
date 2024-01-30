@@ -37,6 +37,9 @@ git checkout -b "$new_branch"
 # Let's start up the application under the new branch
 # This should create updated session metadata and create a new vulnerability instance
 
+# Before Starting the Application we will update the Session Metadata
+java UpdateSessionMetadata
+
 echo "Starting Terracota-Bank"
 nohup ./gradlew bootRun -x test > /dev/null 2>&1 &
 
