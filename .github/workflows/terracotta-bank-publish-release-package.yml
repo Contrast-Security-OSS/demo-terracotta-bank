@@ -47,21 +47,41 @@ jobs:
         curl -s https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/maven-metadata.xml -o maven-metadata.xml
 
         # Extract the latest release version
-        LATEST_RELEASE_VERSION=$(xmllint --xpath 'string(/metadata/versioning/release)' maven-metadata.xml)
+        LATEST_AGENT_RELEASE_VERSION=$(xmllint --xpath 'string(/metadata/versioning/release)' maven-metadata.xml)
 
-        echo "Latest release version is $LATEST_RELEASE_VERSION"
-        echo "::set-output name=latest_version::$LATEST_RELEASE_VERSION"
+        echo "Latest release version is $LATEST_AGENT_RELEASE_VERSION"
+        echo "::set-output name=latest_agent_release_version::$LATEST_AGENT_RELEASE_VERSION"
+
+    - name: Get Latest Release Flag
+      id: get-latest-release-flag
+      run: |
+        echo "Returning Static Value for Now"
+        # TODO: Need to add GitHub API call to get latest release tag
+        
+        LATEST_TAG=v6.2.0
+        echo "Latest release tag is $LATEST_TAG"
+        echo "::set-output name=latest_tag::$LATEST_TAG"
+        
+    
+    - name: Extract Previous Agent Version From Tag
+      id: extract-previous-agent-version-from-tag
+      run: |
+        # LATEST_TAG=${{ steps.get-latest-release.outputs.latest_tag }}
+        PREVIOUS_AGENT_RELEASE_VERSION=${LATEST_TAG#v}
+        echo "Previous agent version is $PREVIOUS_AGENT_RELEASE_VERSION"
+        echo "::set-output name=previous_agent_release_version::$PREVIOUS_AGENT_RELEASE_VERSION"
 
     - name: Download Latest Release Contrast Agent If Newer
       run: |
-        PREVIOUS_RELEASE_VERSION="your_current_version_here" # Replace with your logic to determine the current version
-        LATEST_RELEASE_VERSION=${{ steps.fetch-latest-version.outputs.latest_version }}
+        PREVIOUS_AGENT_RELEASE_VERSION=${{ steps.extract-previous-agent-version-from-tag.outputs.previous_agent_release_version }}
+        LATEST_AGENT_RELEASE_VERSION=${{ steps.fetch-latest-version.outputs.latest_agent_release_version }}
 
-        if [ "$LATEST_RELEASE_VERSION" != "$PREVIOUS_RELEASE_VERSION" ]; then
-          echo "Downloading Contrast Agent version $LATEST_VERSION"
-          wget -O contrast-agent.jar "https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/$LATEST_RELEASE_VERSION/contrast-agent-$LATEST_RELEASE_VERSION.jar"
+        if [ "$LATEST_AGENT_RELEASE_VERSION" != "$PREVIOUS_AGENT_RELEASE_VERSION" ]; then
+          echo "Downloading Contrast Agent version $LATEST_AGENT_RELEASE_VERSION"
+          wget -O contrast-agent.jar "https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/$LATEST_AGENT_RELEASE_VERSION/contrast-agent-$LATEST_AGENT_RELEASE_VERSION.jar"
         else
-          echo "Already using the latest version: $PREVIOUS_RELEASE_VERSION"
+          echo "Already using the latest version: $PREVIOUS_AGENT_RELEASE_VERSION"
+          exit 1
         fi
 
     - name: Prepare Terracotta Bank Release Package
