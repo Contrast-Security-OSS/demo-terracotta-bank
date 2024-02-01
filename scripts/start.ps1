@@ -19,16 +19,17 @@ function Test-PortInUse {
 function Wait-ForServer {
     param (
         [int]$Port
+        [str]$Environment
     )
     do {
         try {
             $tcpClient = New-Object System.Net.Sockets.TcpClient
             $tcpClient.Connect('localhost', $Port)
             $tcpClient.Close()
-            Write-Host "Server on port $Port is ready!"
+            Write-Host "$Environment server on port $Port is ready!"
             break
         } catch {
-            Write-Host "Waiting for server on port $Port..."
+            Write-Host "Waiting for $Environment server on port $Port..."
             Start-Sleep -Seconds 2
         }
     } while ($true)
@@ -47,7 +48,7 @@ if (Test-PortInUse -Port $devPort) {
     Write-Host "Port $devPort is already in use."
 } else {
     Start-Process -FilePath "java" -ArgumentList "-Dcontrast.protect.enable=false", "-Dcontrast.assess.enable=true", "-Dcontrast.server.environment=DEVELOPMENT", "-Dserver.port=$devPort", "-Dcontrast.config.path=$configFile", "-javaagent:contrast-agent.jar", "-jar", "terracotta.war" -RedirectStandardOutput "terracotta-dev.log" -NoNewWindow -PassThru
-    Wait-ForServer -Port $devPort
+    Wait-ForServer -Port $devPort -Environment "DEVELOPMENT"
 }
 
 # Start in PRODUCTION mode (Protect)
@@ -56,5 +57,5 @@ if (Test-PortInUse -Port $prodPort) {
     Write-Host "Port $prodPort is already in use."
 } else {
     Start-Process -FilePath "java" -ArgumentList "-Dcontrast.protect.enable=true", "-Dcontrast.assess.enable=false", "-Dcontrast.server.environment=PRODUCTION", "-Dserver.port=$prodPort", "-Dcontrast.config.path=$configFile", "-javaagent:contrast-agent.jar", "-jar", "terracotta.war" -RedirectStandardOutput "terracotta-prod.log" -NoNewWindow -PassThru
-    Wait-ForServer -Port $prodPort
+    Wait-ForServer -Port $prodPort -Environment "PRODUCTION"
 }
