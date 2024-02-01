@@ -66,7 +66,7 @@ jobs:
     - name: Extract Previous Agent Version From Tag
       id: extract-previous-agent-version-from-tag
       run: |
-        # LATEST_TAG=${{ steps.get-latest-release.outputs.latest_tag }}
+        # LATEST_TAG=${{ steps.get-latest-release-flag.outputs.latest_tag }}
         PREVIOUS_AGENT_RELEASE_VERSION=${LATEST_TAG#v}
         echo "Previous agent version is $PREVIOUS_AGENT_RELEASE_VERSION"
         echo "::set-output name=previous_agent_release_version::$PREVIOUS_AGENT_RELEASE_VERSION"
