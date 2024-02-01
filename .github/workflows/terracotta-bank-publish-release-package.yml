@@ -34,8 +34,11 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@ec92e829475ac0c2315ea8f9eced72db85bb337a # v3.0.0
 
-    - name: Install xmllint
-      run: sudo apt-get install -y libxml2-utils
+    - name: Install Packages
+      run: sudo apt-get install -y libxml2-utils gnupg2
+
+    - name: Import GPG Keys From Ubuntu Keyserver
+      run: gpg --keyserver keyserver.ubuntu.com --recv-keys 7E8F1053
 
     - name: Build WAR with Gradle
       run: ./gradlew clean build -x test
@@ -79,6 +82,8 @@ jobs:
         if [ "$LATEST_AGENT_RELEASE_VERSION" != "$PREVIOUS_AGENT_RELEASE_VERSION" ]; then
           echo "Downloading Contrast Agent version $LATEST_AGENT_RELEASE_VERSION"
           wget -O contrast-agent.jar "https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/${LATEST_AGENT_RELEASE_VERSION}/contrast-agent-${LATEST_AGENT_RELEASE_VERSION}.jar"
+          # wget -O contrast-agent.jar.sha1 "https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/${LATEST_AGENT_RELEASE_VERSION}/contrast-agent-${LATEST_AGENT_RELEASE_VERSION}.jar.sha1"
+          gpg --verify contrast-agent.jar
         else
           echo "Already using the latest version: $PREVIOUS_AGENT_RELEASE_VERSION"
           exit 1
@@ -87,8 +92,9 @@ jobs:
     - name: Prepare Terracotta Bank Release Package
       id: prepare-terracotta-bank-release-package
       run: |
+        TERRACOTTA_BANK_VERSION=0.0.1-SNAPSHOT
         mkdir release
-        cp build/libs/terracotta.war release/
+        cp build/libs/terracotta-bank-servlet-${TERRACOTTA_BANK_VERSION}.war release/terracotta.war
         cp contrast-agent.jar release/
 
     # - name: Create Terracotta Bank Release Package Zip
