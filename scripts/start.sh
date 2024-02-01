@@ -6,6 +6,17 @@ is_port_in_use() {
     return $?
 }
 
+# Function to check if the application is ready
+wait_for_server() {
+    PORT=$1
+    echo "Waiting for server on port $PORT to be ready..."
+    while ! curl --output /dev/null --silent --head --fail http://localhost:"$PORT"; do
+        printf '.'
+        sleep 2
+    done
+    echo "Server on port $PORT is ready!"
+}
+
 # Check if the contrast_security.yaml file exists
 CONFIG_FILE="contrast_security.yaml"
 if [ ! -f "$CONFIG_FILE" ]; then
@@ -24,7 +35,7 @@ else
     -Dcontrast.server.environment=DEVELOPMENT -Dserver.port=$DEV_PORT \
     -Dcontrast.config.path=$CONFIG_FILE \
     -javaagent:contrast-agent.jar -jar terracotta.war > $DEV_LOG 2>&1 &
-    echo "Development server started on port $DEV_PORT"
+    wait_for_server $DEV_PORT
 fi
 
 # Start the application in PRODUCTION mode (Protect)
@@ -38,5 +49,5 @@ else
     -Dcontrast.server.environment=PRODUCTION -Dserver.port=$PROD_PORT \
     -Dcontrast.config.path=$CONFIG_FILE \
     -javaagent:contrast-agent.jar -jar terracotta.war > $PROD_LOG 2>&1 &
-    echo "Production server started on port $PROD_PORT"
+    wait_for_server $PROD_PORT
 fi
