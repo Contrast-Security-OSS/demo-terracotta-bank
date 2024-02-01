@@ -58,7 +58,7 @@ jobs:
         echo "Returning Static Value for Now"
         # TODO: Need to add GitHub API call to get latest release tag
         
-        LATEST_TAG=v6.2.0
+        LATEST_TAG=v6.1.1
         echo "Latest release tag is $LATEST_TAG"
         echo "::set-output name=latest_tag::$LATEST_TAG"
         
