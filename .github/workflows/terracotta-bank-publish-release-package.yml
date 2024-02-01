@@ -93,11 +93,11 @@ jobs:
       run: |
         TERRACOTTA_BANK_VERSION=0.0.1-SNAPSHOT
         LATEST_AGENT_RELEASE_VERSION=${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
-        mkdir release
-        cp build/libs/terracotta-bank-servlet-${TERRACOTTA_BANK_VERSION}.war release/terracotta.war
-        cp contrast-agent.jar release/
-        # cp scripts/* release
-        zip -r terracotta-release.zip release/
+        mkdir terracotta-bank
+        cp build/libs/terracotta-bank-servlet-${TERRACOTTA_BANK_VERSION}.war terracotta-bank/terracotta.war
+        cp contrast-agent.jar terracotta-bank/
+        cp scripts/* terracotta-bank/
+        zip -r terracotta-release.zip terracotta-bank/
 
     - name: Create Terracotta Bank Release
       id: create-terracotta-bank-release
