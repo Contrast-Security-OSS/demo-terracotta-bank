@@ -74,7 +74,7 @@ jobs:
     - name: Download Latest Release Contrast Agent If Newer
       run: |
         PREVIOUS_AGENT_RELEASE_VERSION=${{ steps.extract-previous-agent-version-from-tag.outputs.previous_agent_release_version }}
-        LATEST_AGENT_RELEASE_VERSION=${{ steps.fetch-latest-version.outputs.latest_agent_release_version }}
+        LATEST_AGENT_RELEASE_VERSION=${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
 
         if [ "$LATEST_AGENT_RELEASE_VERSION" != "$PREVIOUS_AGENT_RELEASE_VERSION" ]; then
           echo "Downloading Contrast Agent version $LATEST_AGENT_RELEASE_VERSION"
