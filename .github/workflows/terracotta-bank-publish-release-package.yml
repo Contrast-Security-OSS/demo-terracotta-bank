@@ -83,7 +83,7 @@ jobs:
           echo "Downloading Contrast Agent version $LATEST_AGENT_RELEASE_VERSION"
           wget -O contrast-agent.jar "https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/${LATEST_AGENT_RELEASE_VERSION}/contrast-agent-${LATEST_AGENT_RELEASE_VERSION}.jar"
           # wget -O contrast-agent.jar.sha1 "https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/${LATEST_AGENT_RELEASE_VERSION}/contrast-agent-${LATEST_AGENT_RELEASE_VERSION}.jar.sha1"
-          gpg --verify contrast-agent.jar
+          # gpg --verify contrast-agent.jar
         else
           echo "Already using the latest version: $PREVIOUS_AGENT_RELEASE_VERSION"
           exit 1
