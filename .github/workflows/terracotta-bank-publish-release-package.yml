@@ -149,7 +149,7 @@ jobs:
           CONTRAST_API_SERVICE_KEY: ${{ secrets.CONTRAST_API_SERVICE_KEY }}
           CONTRAST_API_API_KEY: ${{ secrets.CONTRAST_API_API_KEY }}
         run: |
-          CONTRAST_API_AUTH_HEADER=$(echo -n "${CONTRAST_API_USERNAME}:${CONTRAST_API_SERVICE_KEY}" | base64)
+          CONTRAST_API_AUTH_HEADER=$(echo -n "${CONTRAST_API_USERNAME}:${CONTRAST_API_SERVICE_KEY}" | base64 -w 0)
           curl -v \
             -X POST \
             -H "Authorization: ${CONTRAST_API_AUTH_HEADER}" \
