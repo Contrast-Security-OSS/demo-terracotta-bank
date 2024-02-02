@@ -3,11 +3,20 @@ function Stop-ProcessOnPort {
     param (
         [int]$Port
     )
-    $processes = Get-NetTCPConnection -State Listen | Where-Object { $_.LocalPort -eq $Port } | Get-Process
-    if ($processes) {
-        $processes | Stop-Process -Force
-        Write-Host "Stopped processes on port $Port."
-    } else {
+    $connections = Get-NetTCPConnection -State Listen | Where-Object { $_.LocalPort -eq $Port }
+    if ($connections) {
+        foreach ($connection in $connections) {
+            $process = Get-Process -Id $connection.OwningProcess -ErrorAction SilentlyContinue
+            if ($process) {
+                $process | Stop-Process -Force
+                Write-Host "Stopped process $($process.Id) on port $Port."
+            }
+            else {
+                Write-Host "No process found for connection on port $Port."
+            }
+        }
+    }
+    else {
         Write-Host "No process found on port $Port."
     }
 }

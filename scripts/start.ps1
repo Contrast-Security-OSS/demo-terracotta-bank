@@ -21,7 +21,8 @@ function Wait-ForServer {
             $tcpClient.Close()
             Write-Host "$Environment server on port $Port is ready!"
             break
-        } catch {
+        }
+        catch {
             if ($ATTEMPTS -ge $MAX_ATTEMPTS) {
                 Write-Host "Timeout reached. $Environment server on port $Port is not responding."
                 exit
@@ -34,13 +35,20 @@ function Wait-ForServer {
 
 # Check for Java and its version
 $javaVersionOutput = java -version 2>&1
-$javaVersion = $javaVersionOutput -match '"([0-9]+(\.[0-9]+)?(\.[0-9]+)?(_[0-9]+)?)"' | Out-Null
-$javaVersion = $Matches[1]
-$javaMajorVersion = [int]($javaVersion -replace '1\.', '' -replace '\..*', '')
+$javaVersionLine = $javaVersionOutput | Select-String 'version'
+if ($javaVersionLine -ne $null) {
+    $javaVersionString = $javaVersionLine -replace '.*version\s*"([0-9]+(\.[0-9]+)?).*"', '$1'
+    $javaVersionParts = $javaVersionString.Split('.')
+    $javaMajorVersion = if ($javaVersionParts[0] -eq '1') { $javaVersionParts[1] } else { $javaVersionParts[0] }
+}
+else {
+    Write-Host "Java is not installed or version information is not recognized. Please install Java and try again."
+    exit
+}
 
-Write-Host "Java version: $javaVersion"
-if ($javaMajorVersion -lt 8 -or $javaMajorVersion -gt 15) {
-    Write-Host "Unsupported Java version: $javaVersion. Please use Java between version 8 and 15."
+Write-Host "Java version: $javaVersionString"
+if ([int]$javaMajorVersion -lt 8 -or [int]$javaMajorVersion -gt 15) {
+    Write-Host "Unsupported Java version: $javaVersionString. Please use Java between version 8 and 15."
     exit
 }
 
@@ -57,7 +65,8 @@ $devLog = Join-Path $ScriptDir "terracotta-dev.log"
 if (Test-PortInUse -Port $devPort) {
     Write-Host "Development server port $devPort is already in use."
     exit
-} else {
+}
+else {
     Start-Process -FilePath "java" -ArgumentList @(
         "-Dcontrast.protect.enable=false",
         "-Dcontrast.assess.enable=true",
@@ -78,7 +87,8 @@ $prodLog = Join-Path $ScriptDir "terracotta-prod.log"
 if (Test-PortInUse -Port $prodPort) {
     Write-Host "Production server port $prodPort is already in use."
     exit
-} else {
+}
+else {
     Start-Process -FilePath "java" -ArgumentList @(
         "-Dcontrast.protect.enable=true",
         "-Dcontrast.assess.enable=false",
