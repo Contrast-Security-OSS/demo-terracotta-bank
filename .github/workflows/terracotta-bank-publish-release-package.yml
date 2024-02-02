@@ -147,10 +147,10 @@ jobs:
         run: |
           ./release/terracotta-bank/stop.sh
 
-      - name: Upload logs
+      - name: Upload Terracotta Bank Logs (Linux)
         uses: actions/upload-artifact@v4
         with:
-          name: dist-without-markdown
+          name: terracotta-bank-linux-logs
           path: |
             ./release/terracotta-bank/terracotta-dev.log
             ./release/terracotta-bank/terracotta-prod.log
@@ -196,10 +196,10 @@ jobs:
         run: |
           ./release/terracotta-bank/stop.sh
   
-      - name: Upload logs
+      - name: Upload Terracotta Bank Logs (MacOS)
         uses: actions/upload-artifact@v4
         with:
-          name: dist-without-markdown
+          name: terracotta-bank-macos-logs
           path: |
             ./release/terracotta-bank/terracotta-dev.log
             ./release/terracotta-bank/terracotta-prod.log
