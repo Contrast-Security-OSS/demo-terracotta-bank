@@ -54,7 +54,7 @@ fi
 
 # Start the application in DEVELOPMENT mode (Assess)
 DEV_PORT=8080
-DEV_LOG="terracotta-dev.log"
+DEV_LOG="$SCRIPT_DIR/terracotta-dev.log"
 if is_port_in_use $DEV_PORT; then
     echo "Development server port $DEV_PORT is already in use."
     exit 1
@@ -63,17 +63,17 @@ else
         -Dcontrast.assess.enable=true \
         -Dcontrast.server.name=terracotta-dev \
         -Dcontrast.server.environment=DEVELOPMENT \
-        -Dcontrast.config.path=$CONFIG_FILE \
+        -Dcontrast.config.path="$CONFIG_FILE" \
         -Dcontrast.agent.polling.app_activity_ms=1000 \
-        -javaagent:contrast-agent.jar \
+        -javaagent:"$SCRIPT_DIR/contrast-agent.jar" \
         -Dserver.port=$DEV_PORT \
-        -jar terracotta.war >$DEV_LOG 2>&1 &
+        -jar "$SCRIPT_DIR/terracotta.war" >"$DEV_LOG" 2>&1 &
     wait_for_server $DEV_PORT "DEVELOPMENT"
 fi
 
 # Start the application in PRODUCTION mode (Protect)
 PROD_PORT=8082
-PROD_LOG="terracotta-prod.log"
+PROD_LOG="$SCRIPT_DIR/terracotta-prod.log"
 if is_port_in_use $PROD_PORT; then
     echo "Production server port $PROD_PORT is already in use."
     exit 1
@@ -82,10 +82,10 @@ else
         -Dcontrast.assess.enable=false \
         -Dcontrast.server.name=terracotta-prod \
         -Dcontrast.server.environment=PRODUCTION \
-        -Dcontrast.config.path=$CONFIG_FILE \
+        -Dcontrast.config.path="$CONFIG_FILE" \
         -Dcontrast.agent.polling.app_activity_ms=1000 \
-        -javaagent:contrast-agent.jar \
+        -javaagent:"$SCRIPT_DIR/contrast-agent.jar" \
         -Dserver.port=$PROD_PORT \
-        -jar terracotta.war >$PROD_LOG 2>&1 &
+        -jar "$SCRIPT_DIR/terracotta.war" >"$PROD_LOG" 2>&1 &
     wait_for_server $PROD_PORT "PRODUCTION"
 fi
