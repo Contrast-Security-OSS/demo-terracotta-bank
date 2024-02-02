@@ -45,38 +45,45 @@ jobs:
           echo "Latest release version is $LATEST_AGENT_RELEASE_VERSION"
           echo "latest_agent_release_version=$LATEST_AGENT_RELEASE_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Get Latest Release Flag
-        id: get-latest-release-flag
-        run: |
-          echo "Returning Static Value for Now"
-          # TODO: Need to add GitHub API call to get latest release tag
+      # - name: Get Latest Release Flag
+      #   id: get-latest-release-flag
+      #   run: |
+      #     echo "Returning Static Value for Now"
+      #     # TODO: Need to add GitHub API call to get latest release tag
 
-          LATEST_TAG=v6.1.1
-          echo "Latest release tag is $LATEST_TAG"
-          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+      #     LATEST_TAG=v6.1.1
+      #     echo "Latest release tag is $LATEST_TAG"
+      #     echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
-      - name: Extract Previous Agent Version From Tag
-        id: extract-previous-agent-version-from-tag
-        run: |
-          LATEST_TAG=${{ steps.get-latest-release-flag.outputs.latest_tag }}
-          PREVIOUS_AGENT_RELEASE_VERSION=${LATEST_TAG#v}
-          echo "Previous agent version is $PREVIOUS_AGENT_RELEASE_VERSION"
-          echo "previous_agent_release_version=$PREVIOUS_AGENT_RELEASE_VERSION" >> $GITHUB_OUTPUT
+      # - name: Extract Previous Agent Version From Tag
+      #   id: extract-previous-agent-version-from-tag
+      #   run: |
+      #     LATEST_TAG=${{ steps.get-latest-release-flag.outputs.latest_tag }}
+      #     PREVIOUS_AGENT_RELEASE_VERSION=${LATEST_TAG#v}
+      #     echo "Previous agent version is $PREVIOUS_AGENT_RELEASE_VERSION"
+      #     echo "previous_agent_release_version=$PREVIOUS_AGENT_RELEASE_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Download Latest Release Contrast Agent If Newer
+      # - name: Download Latest Release Contrast Agent If Newer
+      #   run: |
+      #     PREVIOUS_AGENT_RELEASE_VERSION=${{ steps.extract-previous-agent-version-from-tag.outputs.previous_agent_release_version }}
+      #     LATEST_AGENT_RELEASE_VERSION=${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
+
+      #     if [ "$LATEST_AGENT_RELEASE_VERSION" != "$PREVIOUS_AGENT_RELEASE_VERSION" ]; then
+      #       echo "Downloading Contrast Agent version $LATEST_AGENT_RELEASE_VERSION"
+      #       wget -O contrast-agent.jar "https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/${LATEST_AGENT_RELEASE_VERSION}/contrast-agent-${LATEST_AGENT_RELEASE_VERSION}.jar"
+      #       # wget -O contrast-agent.jar.sha1 "https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/${LATEST_AGENT_RELEASE_VERSION}/contrast-agent-${LATEST_AGENT_RELEASE_VERSION}.jar.sha1"
+      #       # gpg --verify contrast-agent.jar
+      #     else
+      #       echo "Already using the latest version: $PREVIOUS_AGENT_RELEASE_VERSION"
+      #       exit 1
+      #     fi
+
+      - name: Download Latest Release Contrast Agent
         run: |
-          PREVIOUS_AGENT_RELEASE_VERSION=${{ steps.extract-previous-agent-version-from-tag.outputs.previous_agent_release_version }}
           LATEST_AGENT_RELEASE_VERSION=${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
+          echo "Downloading Contrast Agent version $LATEST_AGENT_RELEASE_VERSION"
+          wget -O contrast-agent.jar "https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/${LATEST_AGENT_RELEASE_VERSION}/contrast-agent-${LATEST_AGENT_RELEASE_VERSION}.jar"
 
-          if [ "$LATEST_AGENT_RELEASE_VERSION" != "$PREVIOUS_AGENT_RELEASE_VERSION" ]; then
-            echo "Downloading Contrast Agent version $LATEST_AGENT_RELEASE_VERSION"
-            wget -O contrast-agent.jar "https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/${LATEST_AGENT_RELEASE_VERSION}/contrast-agent-${LATEST_AGENT_RELEASE_VERSION}.jar"
-            # wget -O contrast-agent.jar.sha1 "https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/${LATEST_AGENT_RELEASE_VERSION}/contrast-agent-${LATEST_AGENT_RELEASE_VERSION}.jar.sha1"
-            # gpg --verify contrast-agent.jar
-          else
-            echo "Already using the latest version: $PREVIOUS_AGENT_RELEASE_VERSION"
-            exit 1
-          fi
 
       - name: Prepare Terracotta Bank Release Package
         id: prepare-terracotta-bank-release-package
@@ -93,6 +100,8 @@ jobs:
         id: create-terracotta-bank-release
         uses: softprops/action-gh-release@v1
         with:
+          name: release/v${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
+          tag_name: release/v${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
           draft: true
           prerelease: true
           files: |
