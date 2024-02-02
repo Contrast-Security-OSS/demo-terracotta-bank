@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Determine the directory where the script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
 # Function to check if a port is in use
 is_port_in_use() {
     netstat -an | grep "$1" | grep LISTEN >/dev/null
@@ -43,7 +46,7 @@ else
 fi
 
 # Check if the contrast_security.yaml file exists
-CONFIG_FILE="contrast_security.yaml"
+CONFIG_FILE="$SCRIPT_DIR/contrast_security.yaml"
 if [ ! -f "$CONFIG_FILE" ]; then
     echo "Configuration file '$CONFIG_FILE' not found. Please ensure it is present in the same directory as this script."
     exit 1
