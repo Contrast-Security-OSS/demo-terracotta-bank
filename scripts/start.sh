@@ -2,7 +2,7 @@
 
 # Function to check if a port is in use
 is_port_in_use() {
-    netstat -an | grep "$1" | grep LISTEN > /dev/null
+    netstat -an | grep "$1" | grep LISTEN >/dev/null
     return $?
 }
 
@@ -20,7 +20,7 @@ wait_for_server() {
         fi
         printf '.'
         sleep 2
-        ATTEMPTS=$((ATTEMPTS+1))
+        ATTEMPTS=$((ATTEMPTS + 1))
     done
     echo "$ENVIRONMENT server on port $PORT is ready!"
 }
@@ -49,13 +49,6 @@ if [ ! -f "$CONFIG_FILE" ]; then
     exit 1
 fi
 
-# Check if the contrast_security.yaml file exists
-CONFIG_FILE="contrast_security.yaml"
-if [ ! -f "$CONFIG_FILE" ]; then
-    echo "Configuration file '$CONFIG_FILE' not found. Please ensure it is present in the same directory as this script."
-    exit 1
-fi
-
 # Start the application in DEVELOPMENT mode (Assess)
 DEV_PORT=8080
 DEV_LOG="terracotta-dev.log"
@@ -63,10 +56,15 @@ if is_port_in_use $DEV_PORT; then
     echo "Development server port $DEV_PORT is already in use."
     exit 1
 else
-    nohup java -Dcontrast.protect.enable=false -Dcontrast.assess.enable=true \
-    -Dcontrast.server.environment=DEVELOPMENT -Dserver.port=$DEV_PORT \
-    -Dcontrast.config.path=$CONFIG_FILE \
-    -javaagent:contrast-agent.jar -jar terracotta.war > $DEV_LOG 2>&1 &
+    nohup java -Dcontrast.protect.enable=false \
+        -Dcontrast.assess.enable=true \
+        -Dcontrast.server.name=terracotta-dev \
+        -Dcontrast.server.environment=DEVELOPMENT \
+        -Dcontrast.config.path=$CONFIG_FILE \
+        -Dcontrast.agent.polling.app_activity_ms=1000 \
+        -javaagent:contrast-agent.jar \
+        -Dserver.port=$DEV_PORT \
+        -jar terracotta.war >$DEV_LOG 2>&1 &
     wait_for_server $DEV_PORT "DEVELOPMENT"
 fi
 
@@ -77,9 +75,14 @@ if is_port_in_use $PROD_PORT; then
     echo "Production server port $PROD_PORT is already in use."
     exit 1
 else
-    nohup java -Dcontrast.protect.enable=true -Dcontrast.assess.enable=false \
-    -Dcontrast.server.environment=PRODUCTION -Dserver.port=$PROD_PORT \
-    -Dcontrast.config.path=$CONFIG_FILE \
-    -javaagent:contrast-agent.jar -jar terracotta.war > $PROD_LOG 2>&1 &
+    nohup java -Dcontrast.protect.enable=true \
+        -Dcontrast.assess.enable=false \
+        -Dcontrast.server.name=terracotta-prod \
+        -Dcontrast.server.environment=PRODUCTION \
+        -Dcontrast.config.path=$CONFIG_FILE \
+        -Dcontrast.agent.polling.app_activity_ms=1000 \
+        -javaagent:contrast-agent.jar \
+        -Dserver.port=$PROD_PORT \
+        -jar terracotta.war >$PROD_LOG 2>&1 &
     wait_for_server $PROD_PORT "PRODUCTION"
 fi
