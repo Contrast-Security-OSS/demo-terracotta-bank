@@ -123,7 +123,7 @@ jobs:
           path: terracotta-release.zip
   
   test-linux:
-    needs: build
+    needs: package
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -173,7 +173,7 @@ jobs:
             ./release/terracotta-bank/terracotta-prod.log
         
   test-macos:
-    needs: build
+    needs: package
     runs-on: macos-latest
     steps:
       - name: Checkout code
