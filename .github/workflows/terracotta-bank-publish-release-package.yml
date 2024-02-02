@@ -35,6 +35,7 @@ jobs:
 
       - name: Copy WAR
         run: |
+          TERRACOTTA_BANK_VERSION=0.0.1-SNAPSHOT
           cp build/libs/terracotta-bank-servlet-${TERRACOTTA_BANK_VERSION}.war terracotta-bank/terracotta.war
       
       - name: Upload Terracotta Bank WAR
@@ -107,7 +108,6 @@ jobs:
       - name: Prepare Terracotta Bank Release Package
         id: prepare-terracotta-bank-release-package
         run: |
-          TERRACOTTA_BANK_VERSION=0.0.1-SNAPSHOT
           LATEST_AGENT_RELEASE_VERSION=${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
           mkdir terracotta-bank
           cp terracotta.war terracotta-bank/terracotta.war
