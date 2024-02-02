@@ -24,12 +24,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@ec92e829475ac0c2315ea8f9eced72db85bb337a # v3.0.0
 
-      - name: Install Packages
-        run: sudo apt-get install -y libxml2-utils gnupg2
-
-      - name: Import GPG Keys From Ubuntu Keyserver
-        run: gpg --keyserver keyserver.ubuntu.com --recv-keys 7E8F1053
-
       - name: Build WAR with Gradle
         run: ./gradlew clean build -x test
 
@@ -49,11 +43,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+      - name: Install Packages
+        run: sudo apt-get install -y libxml2-utils gnupg2
+
       - name: Download Terracotta Bank WAR
         uses: actions/download-artifact@v4
         with:
           name: terracotta-bank-war
-    
+
       - name: Fetch Latest Contrast Agent Version
         id: fetch-latest-contrast-agent-version
         run: |
