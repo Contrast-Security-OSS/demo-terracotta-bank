@@ -111,6 +111,7 @@ jobs:
           mkdir terracotta-bank
           cp terracotta.war terracotta-bank/terracotta.war
           cp contrast-agent.jar terracotta-bank/
+          chmod u+x scripts/*.*
           cp scripts/* terracotta-bank/
           zip -r terracotta-release.zip terracotta-bank/  
           
