@@ -100,8 +100,8 @@ jobs:
         id: create-terracotta-bank-release
         uses: softprops/action-gh-release@v1
         with:
-          name: release/v${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
-          tag_name: release/v${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
+          name: v${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
+          tag_name: v${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
           draft: true
           prerelease: true
           files: |
