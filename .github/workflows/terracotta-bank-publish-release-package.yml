@@ -32,11 +32,13 @@ jobs:
           TERRACOTTA_BANK_VERSION=0.0.1-SNAPSHOT
           cp build/libs/terracotta-bank-servlet-${TERRACOTTA_BANK_VERSION}.war terracotta.war
       
-      - name: Upload Terracotta Bank WAR
+      - name: Upload Terracotta Bank Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: terracotta-bank-war
-          path: terracotta.war
+          name: terracotta-bank-artifacts
+          path: |
+            terracotta.war
+            scripts/     
 
   package:
     needs: build
@@ -49,7 +51,7 @@ jobs:
       - name: Download Terracotta Bank WAR
         uses: actions/download-artifact@v4
         with:
-          name: terracotta-bank-war
+          name: terracotta-bank-artifacts
 
       - name: Fetch Latest Contrast Agent Version
         id: fetch-latest-contrast-agent-version
