@@ -107,4 +107,92 @@ jobs:
         prerelease: true
         files: |
           terracotta-release.zip
+  
+  test-linux:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download release package
+        run: wget https://github.com/Contrast-Security-OSS/demo-terracotta-bank/releases/download/v6.2.0/terracotta-release.zip
+
+      - name: Unzip release package
+        run: unzip terracotta-release.zip -d ./release
+
+      - name: Test Start Script on Linux
+        run: |
+          ./release/start.sh
+
+      - name: Check Application on Port 8080 (Development)
+        run: |
+          curl --fail http://localhost:8080 || exit 1
+      - name: Check Application on Port 8082 (Production)
+        run: |
+          curl --fail http://localhost:8082 || exit 1
+
+      - name: Test Stop Script on Linux
+        run: ./release/stop.sh
         
+  test-macos:
+    needs: build
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download release package
+        run: curl -L https://github.com/Contrast-Security-OSS/demo-terracotta-bank/releases/download/v6.2.0/terracotta-release.zip -o terracotta-release.zip
+
+      - name: Unzip release package
+        run: unzip terracotta-release.zip -d ./release
+
+      - name: Test Start Script on MacOS
+        run: |
+          ./release/start.sh
+
+      - name: Check Application on Port 8080 (Development)
+        run: |
+          curl --fail http://localhost:8080 || exit 1
+          
+      - name: Check Application on Port 8082 (Production)
+        run: |
+          curl --fail http://localhost:8082 || exit 1
+
+      - name: Test Stop Script on MacOS
+        run: ./release/stop.sh
+  
+  test-windows:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download release package
+        run: Invoke-WebRequest -Uri https://github.com/Contrast-Security-OSS/demo-terracotta-bank/releases/download/v6.2.0/terracotta-release.zip -OutFile terracotta-release.zip
+
+      - name: Unzip release package
+        run: Expand-Archive -Path terracotta-release.zip -DestinationPath ./release
+
+      - name: Test Start Batch Script on Windows
+        run: |
+          .\release\start.bat
+
+      - name: Check Application on Port 8080 (Development)
+        run: |
+          (New-Object System.Net.Sockets.TcpClient).Connect('localhost', 8080) || exit 1
+      - name: Check Application on Port 8082 (Production)
+        run: |
+          (New-Object System.Net.Sockets.TcpClient).Connect('localhost', 8082) || exit 1
+
+      - name: Test Stop Batch Script on Windows
+        run: .\release\stop.bat
+
+      - name: Test Start PowerShell Script on Windows
+        run: |
+          .\release\start.ps1
+
+      - name: Test Stop PowerShell Script on Windows
+        run: .\release\stop.ps1
