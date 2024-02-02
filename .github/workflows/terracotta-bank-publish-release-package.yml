@@ -122,6 +122,16 @@ jobs:
         run: |
           unzip terracotta-release.zip -d ./release
 
+      - name: Download contrast_security.yaml (Linux/MacOS)
+        env:
+          ORGANIZATION_ID: ${{ secrets.ORGANIZATION_ID }}
+          CONTRAST_API_USERNAME: ${{ secrets.CONTRAST_API_USERNAME }}
+          CONTRAST_API_SERVICE_KEY: ${{ secrets.CONTRAST_API_SERVICE_KEY }}
+          API_KEY: ${{ secrets.API_KEY }}
+        run: |
+          AUTH_HEADER=$(echo -n "${CONTRAST_API_USERNAME}:${CONTRAST_API_SERVICE_KEY}" | base64)
+          curl -H "Authorization: ${AUTH_HEADER}" -H "API-Key: ${API_KEY}" -o ./release/terracotta-bank/contrast_security.yaml "https://eval.contrastsecurity.com/Contrast/api/ng/${ORGANIZATION_ID}/agents/external/default/JAVA"
+
       - name: Test Start Script on Linux
         run: |
           ./release/terracotta-bank/start.sh
@@ -151,6 +161,16 @@ jobs:
       - name: Unzip release package
         run: |
           unzip terracotta-release.zip -d ./release
+          
+      - name: Download contrast_security.yaml (Linux/MacOS)
+        env:
+          ORGANIZATION_ID: ${{ secrets.ORGANIZATION_ID }}
+          CONTRAST_API_USERNAME: ${{ secrets.CONTRAST_API_USERNAME }}
+          CONTRAST_API_SERVICE_KEY: ${{ secrets.CONTRAST_API_SERVICE_KEY }}
+          API_KEY: ${{ secrets.API_KEY }}
+        run: |
+          AUTH_HEADER=$(echo -n "${CONTRAST_API_USERNAME}:${CONTRAST_API_SERVICE_KEY}" | base64)
+          curl -H "Authorization: ${AUTH_HEADER}" -H "API-Key: ${API_KEY}" -o ./release/terracotta-bank/contrast_security.yaml "https://eval.contrastsecurity.com/Contrast/api/ng/${ORGANIZATION_ID}/agents/external/default/JAVA"
 
       - name: Test Start Script on MacOS
         run: |
@@ -182,6 +202,20 @@ jobs:
       - name: Unzip release package
         run: |
           Expand-Archive -Path terracotta-release.zip -DestinationPath ./terracotta-bank
+
+      - name: Download contrast_security.yaml (Windows)
+        env:
+          ORGANIZATION_ID: ${{ secrets.ORGANIZATION_ID }}
+          CONTRAST_API_USERNAME: ${{ secrets.CONTRAST_API_USERNAME }}
+          CONTRAST_API_SERVICE_KEY: ${{ secrets.CONTRAST_API_SERVICE_KEY }}
+          API_KEY: ${{ secrets.API_KEY }}
+        run: |
+          $AuthHeader = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("${env:CONTRAST_API_USERNAME}:${env:CONTRAST_API_SERVICE_KEY}"))
+          $Headers = @{
+            "Authorization" = "Basic $AuthHeader"
+            "API-Key" = "${env:API_KEY}"
+          }
+          Invoke-WebRequest -Uri "https://eval.contrastsecurity.com/Contrast/api/ng/${env:ORGANIZATION_ID}/agents/external/default/JAVA" -Headers $Headers -OutFile .\release\terracotta-bank\contrast_security.yaml
 
       - name: Test Start Batch Script on Windows
         run: |
