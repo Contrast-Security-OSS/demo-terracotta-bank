@@ -49,13 +49,6 @@ if [ ! -f "$CONFIG_FILE" ]; then
     exit 1
 fi
 
-# Check if the contrast_security.yaml file exists
-CONFIG_FILE="contrast_security.yaml"
-if [ ! -f "$CONFIG_FILE" ]; then
-    echo "Configuration file '$CONFIG_FILE' not found. Please ensure it is present in the same directory as this script."
-    exit 1
-fi
-
 # Start the application in DEVELOPMENT mode (Assess)
 DEV_PORT=8080
 DEV_LOG="terracotta-dev.log"
