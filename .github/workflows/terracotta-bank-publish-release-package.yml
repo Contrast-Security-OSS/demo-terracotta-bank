@@ -206,7 +206,12 @@ jobs:
           CONTRAST_API_API_KEY: ${{ secrets.CONTRAST_API_API_KEY }}
         run: |
           CONTRAST_API_AUTH_HEADER=$(echo -n "${CONTRAST_API_USERNAME}:${CONTRAST_API_SERVICE_KEY}" | base64)
-          curl -X POST -H "Authorization: ${CONTRAST_API_AUTH_HEADER}" -H "API-Key: ${CONTRAST_API_API_KEY}" -o ./release/terracotta-bank/contrast_security.yaml "https://eval.contrastsecurity.com/Contrast/api/ng/${CONTRAST_API_ORGANIZATION_ID}/agents/external/default/JAVA"
+          curl -v \
+            -X POST \
+            -H "Authorization: ${CONTRAST_API_AUTH_HEADER}" \
+            -H "API-Key: ${CONTRAST_API_API_KEY}" \
+            -o ./release/terracotta-bank/contrast_security.yaml \
+            "https://eval.contrastsecurity.com/Contrast/api/ng/${CONTRAST_API_ORGANIZATION_ID}/agents/external/default/JAVA"
           cat ./release/terracotta-bank/contrast_security.yaml
 
       - name: Test Start Script on MacOS
