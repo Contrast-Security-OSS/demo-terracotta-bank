@@ -36,13 +36,13 @@ jobs:
       - name: Copy WAR
         run: |
           TERRACOTTA_BANK_VERSION=0.0.1-SNAPSHOT
-          cp build/libs/terracotta-bank-servlet-${TERRACOTTA_BANK_VERSION}.war terracotta-bank/terracotta.war
+          cp build/libs/terracotta-bank-servlet-${TERRACOTTA_BANK_VERSION}.war terracotta.war
       
       - name: Upload Terracotta Bank WAR
         uses: actions/upload-artifact@v4
         with:
           name: terracotta-bank-war
-          path: terracotta-bank/terracotta.war
+          path: terracotta.war
 
   package:
     needs: build
