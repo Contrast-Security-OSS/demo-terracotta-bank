@@ -43,7 +43,7 @@ public class UserService extends ServiceSupport {
 		return users.isEmpty() ? null : users.iterator().next();
 	}
 
-	#This function has been modified to remediated the SQL Injection Vulnerability	
+	#This function has been modified to remediate the SQL Injection Vulnerability	
 	public User findByUsernameAndPassword(String username, String password) {
 			Set<User> users = runQuery("SELECT * FROM users WHERE username = ? AND password = ?",
 				(ps) -> {
