@@ -34,6 +34,7 @@ timestamp=$(date +"%H-%M-%S")
 new_branch="attempted-fix-$timestamp"
 echo "Switching branch to: $new_branch"
 git checkout -b "$new_branch"
+
 # Let's start up the application under the new branch
 # This should create updated session metadata and create a new vulnerability instance
 
@@ -41,7 +42,7 @@ git checkout -b "$new_branch"
 java UpdateSessionMetadata
 
 echo "Starting Terracota-Bank"
-nohup ./gradlew bootRun -x test > /dev/null 2>&1 &
+nohup ./gradlew bootRun -x test > logs/server.log 2>&1 &
 
 # Wait 30 seconds for the app to start
 echo "waiting 30 seconds for app to start"
@@ -87,15 +88,27 @@ while [ $current_attempt -lt $max_attempts ]; do
         echo "Application started successfully."
         exit 0
     else
-        echo "Application not yet started. Waiting...trying again in 3 seconds"
-        sleep 3
-        ((current_attempt++))
+        # Checking for errors
+        log_file="logs/server.log"
+
+        # Use tail to grab the last 5 lines of the file
+        last_five_lines=$(tail -n 5 "$log_file")
+
+        # Check if 'Build Failed' exists in the last 5 lines
+        if echo "$last_five_lines" | grep -q "BUILD FAILED"; then
+            echo "Build Failed with errors. Please check 'logs/server.log' for more information!"
+            exit 1
+        else
+            echo "Application not yet started. Waiting...trying again in 3 seconds"
+            sleep 3
+            ((current_attempt++))
+        fi
     fi
 done
 
 
 # If the loop completes without success
-echo "Application failed to start within the specified time. Check the logs for more information."
+echo "Application failed to start within the specified time. Check 'logs/server.log' for more information."
 exit 1
 
 
