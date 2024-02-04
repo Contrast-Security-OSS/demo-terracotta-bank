@@ -262,9 +262,20 @@ jobs:
           $Headers = @{
             "Authorization" = "Basic $AuthHeader"
             "API-Key" = "${env:CONTRAST_API_API_KEY}"
-            "Content-Length" = "0"  # Explicitly setting Content-Length for POST request with no body
+            "method"="POST"
+            "path"="/Contrast/api/ng/${env:CONTRAST_API_ORGANIZATION_ID}/agents/external/default/JAVA"
+            "scheme"="https"
+            "accept"="application/json"
+            "accept-encoding"="gzip, deflate, br"
+            "accept-language"="en-US,en;q=0.9"
           }
-          Invoke-WebRequest -Uri "https://eval.contrastsecurity.com/Contrast/api/ng/${env:CONTRAST_API_ORGANIZATION_ID}/agents/external/default/JAVA" -Method Post -Headers $Headers -OutFile "./release/terracotta-bank/contrast_security.yaml" -Verbose
+          Invoke-WebRequest -Uri "https://eval.contrastsecurity.com/Contrast/api/ng/${env:CONTRAST_API_ORGANIZATION_ID}/agents/external/default/JAVA" `
+          -Method Post `
+          -Headers $Headers `
+          -ContentType "application/json" `
+          -Body "{`"metadata`":[]}" `
+          -OutFile "./release/terracotta-bank/contrast_security.yaml" `
+          -Verbose
 
       - name: Test Start Script on Windows
         run: |
@@ -291,54 +302,6 @@ jobs:
           path: |
             .\release\terracotta-bank\terracotta-dev.log
             .\release\terracotta-bank\terracotta-prod.log
-
-  # test-windows:
-  #   needs: build
-  #   runs-on: windows-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
-
-  #     - name: Download release package
-  #       run: |
-  #         Invoke-WebRequest -Uri https://github.com/Contrast-Security-OSS/demo-terracotta-bank/releases/download/v6.2.0/terracotta-release.zip -OutFile terracotta-release.zip
-
-  #     - name: Unzip release package
-  #       run: |
-  #         Expand-Archive -Path terracotta-release.zip -DestinationPath ./terracotta-bank
-
-  #     - name: Download contrast_security.yaml (Windows)
-  #       env:
-  #         ORGANIZATION_ID: ${{ secrets.ORGANIZATION_ID }}
-  #         CONTRAST_API_USERNAME: ${{ secrets.CONTRAST_API_USERNAME }}
-  #         CONTRAST_API_SERVICE_KEY: ${{ secrets.CONTRAST_API_SERVICE_KEY }}
-  #         API_KEY: ${{ secrets.API_KEY }}
-  #       run: |
-  #         $AuthHeader = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("${env:CONTRAST_API_USERNAME}:${env:CONTRAST_API_SERVICE_KEY}"))
-  #         $Headers = @{
-  #           "Authorization" = "Basic $AuthHeader"
-  #           "API-Key" = "${env:API_KEY}"
-  #         }
-  #         Invoke-WebRequest -Uri "https://eval.contrastsecurity.com/Contrast/api/ng/${env:ORGANIZATION_ID}/agents/external/default/JAVA" -Headers $Headers -OutFile .\release\terracotta-bank\contrast_security.yaml
-
-  #     - name: Test Start Batch Script on Windows
-  #       run: |
-  #         .\release\terracotta-bank\start.bat
-
-  #     - name: Check Application on Port 8080 (Development)
-  #       run: |
-  #         (New-Object System.Net.Sockets.TcpClient).Connect('localhost', 8080) || exit 1
-  #     - name: Check Application on Port 8082 (Production)
-  #       run: |
-  #         (New-Object System.Net.Sockets.TcpClient).Connect('localhost', 8082) || exit 1
-
-  #     - name: Test Stop Batch Script on Windows
-  #       run: |
-  #         .\release\terracotta-bank\stop.bat
-
-  #     - name: Test Start PowerShell Script on Windows
-  #       run: |
-  #         .\release\terracotta-bank\start.ps1
 
   release:
     needs: [test-linux, test-macos, test-windows]
