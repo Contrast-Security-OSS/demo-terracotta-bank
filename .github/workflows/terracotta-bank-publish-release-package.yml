@@ -250,7 +250,7 @@ jobs:
       - name: Unzip release package
         run: |
           Expand-Archive -Path terracotta-release.zip -DestinationPath ./release
-  
+          
       - name: Download contrast_security.yaml (Windows)
         env:
           CONTRAST_API_ORGANIZATION_ID: ${{ secrets.CONTRAST_API_ORGANIZATION_ID }}
@@ -262,10 +262,10 @@ jobs:
           $Headers = @{
             "Authorization" = "Basic $AuthHeader"
             "API-Key" = "${env:CONTRAST_API_API_KEY}"
-            "Accept" = "application/x-yaml" # Modify as per the API's expected response format
+            "Content-Length" = "0"  # Explicitly setting Content-Length for POST request with no body
           }
-          Invoke-WebRequest -Uri "https://eval.contrastsecurity.com/Contrast/api/ng/${env:CONTRAST_API_ORGANIZATION_ID}/agents/external/default/JAVA" -Headers $Headers -OutFile "./release/terracotta-bank/contrast_security.yaml" -Verbose
-  
+          Invoke-WebRequest -Uri "https://eval.contrastsecurity.com/Contrast/api/ng/${env:CONTRAST_API_ORGANIZATION_ID}/agents/external/default/JAVA" -Method Post -Headers $Headers -OutFile "./release/terracotta-bank/contrast_security.yaml" -Verbose
+
       - name: Test Start Script on Windows
         run: |
           & .\release\terracotta-bank\start.ps1
