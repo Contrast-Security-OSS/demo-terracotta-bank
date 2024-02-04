@@ -77,7 +77,7 @@ else {
         "-javaagent:$ScriptDir\contrast-agent.jar",
         "-Dserver.port=$devPort",
         "-jar", "$ScriptDir\terracotta.war"
-    ) -RedirectStandardOutput $devLog -RedirectStandardError $devLog -PassThru
+    ) -RedirectStandardOutput $devLog -PassThru
     Wait-ForServer -Port $devPort -Environment "DEVELOPMENT"
 }
 
@@ -99,6 +99,6 @@ else {
         "-javaagent:$ScriptDir\contrast-agent.jar",
         "-Dserver.port=$prodPort",
         "-jar", "$ScriptDir\terracotta.war"
-    ) -RedirectStandardOutput $prodLog -RedirectStandardError $prodLog -PassThru
+    ) -RedirectStandardOutput $prodLog -PassThru
     Wait-ForServer -Port $prodPort -Environment "PRODUCTION"
 }
