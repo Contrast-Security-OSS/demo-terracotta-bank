@@ -262,8 +262,9 @@ jobs:
           $Headers = @{
             "Authorization" = "Basic $AuthHeader"
             "API-Key" = "${env:CONTRAST_API_API_KEY}"
+            "Accept" = "application/x-yaml" # Modify as per the API's expected response format
           }
-          Invoke-WebRequest -Uri "https://eval.contrastsecurity.com/Contrast/api/ng/${env:CONTRAST_API_ORGANIZATION_ID}/agents/external/default/JAVA" -Headers $Headers -OutFile "./release/terracotta-bank/contrast_security.yaml"
+          Invoke-WebRequest -Uri "https://eval.contrastsecurity.com/Contrast/api/ng/${env:CONTRAST_API_ORGANIZATION_ID}/agents/external/default/JAVA" -Headers $Headers -OutFile "./release/terracotta-bank/contrast_security.yaml" -Verbose
   
       - name: Test Start Script on Windows
         run: |
@@ -340,7 +341,7 @@ jobs:
   #         .\release\terracotta-bank\start.ps1
 
   release:
-    needs: [test-linux, test-macos]
+    needs: [test-linux, test-macos, test-windows]
     runs-on: ubuntu-latest
     steps:
         - name: Download Release Package
