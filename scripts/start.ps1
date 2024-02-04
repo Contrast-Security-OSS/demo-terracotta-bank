@@ -37,6 +37,7 @@ function Wait-ForServer {
 $javaVersionOutput = java -version 2>&1
 $javaVersionLine = $javaVersionOutput | Select-String 'version'
 if ($javaVersionLine -ne $null) {
+    Write-Host "Java is installed. Checking if version is supported."
     $javaVersionString = $javaVersionLine -replace '.*version\s*"([0-9]+(\.[0-9]+)?).*"', '$1'
     $javaVersionParts = $javaVersionString.Split('.')
     $javaMajorVersion = if ($javaVersionParts[0] -eq '1') { $javaVersionParts[1] } else { $javaVersionParts[0] }
@@ -51,6 +52,9 @@ if ([int]$javaMajorVersion -lt 8 -or [int]$javaMajorVersion -gt 15) {
     Write-Host "Unsupported Java version: $javaVersionString. Please use Java between version 8 and 15."
     exit
 }
+else {
+    Write-Host "Supported Java version found: $javaVersionString."
+}
 
 # Check if the contrast_security.yaml file exists
 $ConfigFile = Join-Path $ScriptDir "contrast_security.yaml"
@@ -58,17 +62,19 @@ if (-not (Test-Path $ConfigFile)) {
     Write-Host "Configuration file '$ConfigFile' not found. Please ensure it is present in the same directory as this script."
     exit
 }
+else {
+    Write-Host "Configuration file '$ConfigFile' found."
+}
 
-# Start the application in DEVELOPMENT mode (Assess) using Start-Job
+
+# Start the application in DEVELOPMENT mode (Assess)
 $devPort = 8080
 $devLog = Join-Path $ScriptDir "terracotta-dev.log"
 if (Test-PortInUse -Port $devPort) {
     Write-Host "Development server port $devPort is already in use."
-    exit
 }
 else {
     $devJob = Start-Job -ScriptBlock {
-        param($ScriptDir, $ConfigFile, $devPort, $devLog)
         java -Dcontrast.protect.enable=false `
              -Dcontrast.assess.enable=true `
              -Dcontrast.server.name=terracotta-dev `
@@ -78,20 +84,17 @@ else {
              -javaagent:"$ScriptDir\contrast-agent.jar" `
              -Dserver.port=$devPort `
              -jar "$ScriptDir\terracotta.war" *> $devLog
-    } -ArgumentList $ScriptDir, $ConfigFile, $devPort, $devLog
-    Wait-ForServer -Port $devPort -Environment "DEVELOPMENT"
+    } -Name "DevServerJob" -ArgumentList @(...) # Add -Name for easier job identification
 }
 
-# Start the application in PRODUCTION mode (Protect) using Start-Job
+# Start the application in PRODUCTION mode (Protect)
 $prodPort = 8082
 $prodLog = Join-Path $ScriptDir "terracotta-prod.log"
 if (Test-PortInUse -Port $prodPort) {
     Write-Host "Production server port $prodPort is already in use."
-    exit
 }
 else {
     $prodJob = Start-Job -ScriptBlock {
-        param($ScriptDir, $ConfigFile, $prodPort, $prodLog)
         java -Dcontrast.protect.enable=true `
              -Dcontrast.assess.enable=false `
              -Dcontrast.server.name=terracotta-prod `
@@ -101,6 +104,8 @@ else {
              -javaagent:"$ScriptDir\contrast-agent.jar" `
              -Dserver.port=$prodPort `
              -jar "$ScriptDir\terracotta.war" *> $prodLog
-    } -ArgumentList $ScriptDir, $ConfigFile, $prodPort, $prodLog
-    Wait-ForServer -Port $prodPort -Environment "PRODUCTION"
+    } -Name "ProdServerJob" -ArgumentList @(...)
 }
+
+# Check for job status or any immediate errors
+Get-Job | Format-Table -Property Id, Name, State, HasMoreData
