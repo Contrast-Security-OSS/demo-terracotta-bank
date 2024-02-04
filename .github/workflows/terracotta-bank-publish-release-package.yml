@@ -171,6 +171,8 @@ jobs:
         run: |
           ./release/terracotta-bank/stop.sh
 
+      # TODO: Verify application is stopped.
+
       - name: Upload Terracotta Bank Logs (Linux)
         uses: actions/upload-artifact@v4
         with:
@@ -225,6 +227,8 @@ jobs:
       - name: Test Stop Script on MacOS
         run: |
           ./release/terracotta-bank/stop.sh
+
+      # TODO: Verify application is stopped.
   
       - name: Upload Terracotta Bank Logs (MacOS)
         uses: actions/upload-artifact@v4
@@ -280,20 +284,40 @@ jobs:
       - name: Test Start Script on Windows
         run: |
           & .\release\terracotta-bank\start.ps1
-  
+
+      - name: Wait Before Checking Port
+        run: |
+          Start-Sleep -Seconds 10 # Adjust the duration as necessary
+
       - name: Check Application on Port 8080 (Development)
         run: |
-          (New-Object System.Net.Sockets.TcpClient).Connect('localhost', 8080)
-          if ($LASTEXITCODE -ne 0) { exit 1 }
+          try {
+            $tcpClient = New-Object System.Net.Sockets.TcpClient
+            $tcpClient.Connect('localhost', 8080)
+            $tcpClient.Close()
+            Write-Host "Connection to port 8080 successful."
+          } catch {
+            Write-Host "Error connecting to port 8080: $_"
+            exit 1
+          }
   
       - name: Check Application on Port 8082 (Production)
         run: |
-          (New-Object System.Net.Sockets.TcpClient).Connect('localhost', 8082)
-          if ($LASTEXITCODE -ne 0) { exit 1 }
+          try {
+            $tcpClient = New-Object System.Net.Sockets.TcpClient
+            $tcpClient.Connect('localhost', 8082)
+            $tcpClient.Close()
+            Write-Host "Connection to port 8082 successful."
+          } catch {
+            Write-Host "Error connecting to port 8082: $_"
+            exit 1
+          }
   
       - name: Test Stop Script on Windows
         run: |
           & .\release\terracotta-bank\stop.ps1
+
+      # TODO: Verify application is stopped
   
       - name: Upload Terracotta Bank Logs (Windows)
         uses: actions/upload-artifact@v4
