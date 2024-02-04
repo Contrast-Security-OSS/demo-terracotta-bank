@@ -59,7 +59,7 @@ if (-not (Test-Path $ConfigFile)) {
     exit
 }
 
-# Start the application in DEVELOPMENT mode (Assess)
+# Start the application in DEVELOPMENT mode (Assess) using Start-Job
 $devPort = 8080
 $devLog = Join-Path $ScriptDir "terracotta-dev.log"
 if (Test-PortInUse -Port $devPort) {
@@ -67,21 +67,22 @@ if (Test-PortInUse -Port $devPort) {
     exit
 }
 else {
-    Start-Process -FilePath "java" -ArgumentList @(
-        "-Dcontrast.protect.enable=false",
-        "-Dcontrast.assess.enable=true",
-        "-Dcontrast.server.name=terracotta-dev",
-        "-Dcontrast.server.environment=DEVELOPMENT",
-        "-Dcontrast.config.path=$ConfigFile",
-        "-Dcontrast.agent.polling.app_activity_ms=1000",
-        "-javaagent:$ScriptDir\contrast-agent.jar",
-        "-Dserver.port=$devPort",
-        "-jar", "$ScriptDir\terracotta.war"
-    ) -RedirectStandardOutput $devLog -PassThru
+    $devJob = Start-Job -ScriptBlock {
+        param($ScriptDir, $ConfigFile, $devPort, $devLog)
+        java -Dcontrast.protect.enable=false `
+             -Dcontrast.assess.enable=true `
+             -Dcontrast.server.name=terracotta-dev `
+             -Dcontrast.server.environment=DEVELOPMENT `
+             -Dcontrast.config.path=$ConfigFile `
+             -Dcontrast.agent.polling.app_activity_ms=1000 `
+             -javaagent:"$ScriptDir\contrast-agent.jar" `
+             -Dserver.port=$devPort `
+             -jar "$ScriptDir\terracotta.war" *> $devLog
+    } -ArgumentList $ScriptDir, $ConfigFile, $devPort, $devLog
     Wait-ForServer -Port $devPort -Environment "DEVELOPMENT"
 }
 
-# Start the application in PRODUCTION mode (Protect)
+# Start the application in PRODUCTION mode (Protect) using Start-Job
 $prodPort = 8082
 $prodLog = Join-Path $ScriptDir "terracotta-prod.log"
 if (Test-PortInUse -Port $prodPort) {
@@ -89,16 +90,17 @@ if (Test-PortInUse -Port $prodPort) {
     exit
 }
 else {
-    Start-Process -FilePath "java" -ArgumentList @(
-        "-Dcontrast.protect.enable=true",
-        "-Dcontrast.assess.enable=false",
-        "-Dcontrast.server.name=terracotta-prod",
-        "-Dcontrast.server.environment=PRODUCTION",
-        "-Dcontrast.config.path=$ConfigFile",
-        "-Dcontrast.agent.polling.app_activity_ms=1000",
-        "-javaagent:$ScriptDir\contrast-agent.jar",
-        "-Dserver.port=$prodPort",
-        "-jar", "$ScriptDir\terracotta.war"
-    ) -RedirectStandardOutput $prodLog -PassThru
+    $prodJob = Start-Job -ScriptBlock {
+        param($ScriptDir, $ConfigFile, $prodPort, $prodLog)
+        java -Dcontrast.protect.enable=true `
+             -Dcontrast.assess.enable=false `
+             -Dcontrast.server.name=terracotta-prod `
+             -Dcontrast.server.environment=PRODUCTION `
+             -Dcontrast.config.path=$ConfigFile `
+             -Dcontrast.agent.polling.app_activity_ms=1000 `
+             -javaagent:"$ScriptDir\contrast-agent.jar" `
+             -Dserver.port=$prodPort `
+             -jar "$ScriptDir\terracotta.war" *> $prodLog
+    } -ArgumentList $ScriptDir, $ConfigFile, $prodPort, $prodLog
     Wait-ForServer -Port $prodPort -Environment "PRODUCTION"
 }
