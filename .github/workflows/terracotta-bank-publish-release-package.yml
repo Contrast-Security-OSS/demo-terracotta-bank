@@ -285,10 +285,9 @@ jobs:
         run: |
           & .\release\terracotta-bank\start.ps1
 
-      # - name: Display Server Logs
-      #   run: |
-      #     Get-Content ./release/terracotta-bank/terracotta-dev.log
-      #     Get-Content ./release/terracotta-bank/terracotta-prod.log
+      - name: Wait Before Checking Port
+        run: |
+          Start-Sleep -Seconds 60 # Increase this time as needed
 
       - name: Check Application on Port 8080 (Development)
         run: |
