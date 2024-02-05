@@ -9,6 +9,9 @@ fi
 # Before Starting the Application we will update the Session Metadata
 java UpdateSessionMetadata
 
+# Ensure log folder exists before starting application
+mkdir -p logs
+
 # Start the application as a separate process in the background
 nohup ./gradlew bootRun -x test > logs/server.log 2>&1 &
 
