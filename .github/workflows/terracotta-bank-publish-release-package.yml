@@ -288,6 +288,7 @@ jobs:
       - name: Wait Before Checking Port
         run: |
           Start-Sleep -Seconds 60 # Increase this time as needed
+          Get-Job | Format-Table -Property Id, Name, State, HasMoreData
 
       - name: Check Application on Port 8080 (Development)
         run: |
