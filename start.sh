@@ -1,11 +1,16 @@
 #!/bin/bash
 
+# Check if any Terracotta Bank app is currently running
+if pgrep -f java > /dev/null; then
+    echo "[!ERROR] It seems like a process of Terracotta Bank is already running. Please run './stop.sh' before trying to start the application."
+    exit 1
+fi
 
 # Before Starting the Application we will update the Session Metadata
 java UpdateSessionMetadata
 
 # Start the application as a separate process in the background
-nohup ./gradlew bootRun -x test > /dev/null 2>&1 &
+nohup ./gradlew bootRun -x test > logs/server.log 2>&1 &
 
 echo " Starting Terracotta Bank application started as a separate process. This may take up to 30 seconds!"
 sleep 30
@@ -40,7 +45,7 @@ check_application_running() {
 }
 
 # Maximum number of attempts to check if the application is running
-max_attempts=150
+max_attempts=50
 current_attempt=0
 while [ $current_attempt -lt $max_attempts ]; do
     if check_application_running; then
@@ -48,11 +53,26 @@ while [ $current_attempt -lt $max_attempts ]; do
 	    echo "Application started successfully."
         exit 0
     else
-        echo "Application not yet started. Waiting...trying again in 3 seconds"
-        sleep 3
-        ((current_attempt++))
+
+        # Checking for errors
+        log_file="logs/server.log"
+
+        # Use tail to grab the last 5 lines of the file
+        last_five_lines=$(tail -n 5 "$log_file")
+
+        # Check if 'Build Failed' exists in the last 5 lines
+        if echo "$last_five_lines" | grep -q "BUILD FAILED"; then
+            echo "Build Failed with errors. Please check 'logs/server.log' for more information!"
+            exit 1
+        else
+        
+
+            echo "Application not yet started. Waiting...trying again in 3 seconds"
+            sleep 3
+            ((current_attempt++))
+        fi
     fi
 done
 
-echo "Application failed to start within the specified time. Check the logs for more information."
+echo "Application failed to start within the specified time. Check the 'logs/server.log' for more information."
 exit 1
