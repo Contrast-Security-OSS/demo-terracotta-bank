@@ -285,10 +285,10 @@ jobs:
         run: |
           & .\release\terracotta-bank\start.ps1
 
-      - name: Display Server Logs
-        run: |
-          Get-Content ./release/terracotta-bank/terracotta-dev.log
-          Get-Content ./release/terracotta-bank/terracotta-prod.log
+      # - name: Display Server Logs
+      #   run: |
+      #     Get-Content ./release/terracotta-bank/terracotta-dev.log
+      #     Get-Content ./release/terracotta-bank/terracotta-prod.log
 
       - name: Check Application on Port 8080 (Development)
         run: |
