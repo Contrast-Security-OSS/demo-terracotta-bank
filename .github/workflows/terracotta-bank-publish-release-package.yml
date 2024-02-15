@@ -348,7 +348,7 @@ jobs:
           with:
             name: v${{ steps.fetch-contrast-agent-version.outputs.contrast_agent_release_version }}
             tag_name: v${{ steps.fetch-contrast-agent-version.outputs.contrast_agent_release_version }}
-            draft: true
-            prerelease: true
+            draft: false
+            prerelease: false
             files: |
               terracotta-release.zip
