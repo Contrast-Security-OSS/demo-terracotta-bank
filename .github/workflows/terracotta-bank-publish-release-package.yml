@@ -356,7 +356,7 @@ jobs:
             files: |
               terracotta-release.zip
   
-  pre-release:
+  prerelease:
     if: ${{ github.ref != 'refs/heads/main' }}
     needs: [test-linux, test-macos]
     runs-on: ubuntu-latest
@@ -371,14 +371,14 @@ jobs:
           run: |
             echo "contrast_agent_release_version=$(cat AGENT_VERSION)" >> $GITHUB_OUTPUT
           
-        - name: Create Terracotta Bank Release
-          id: create-terracotta-bank-release
+        - name: Create Terracotta Bank PreRelease
+          id: create-terracotta-bank-prerelease
           uses: softprops/action-gh-release@v1
           with:
             name: v${{ steps.fetch-contrast-agent-version.outputs.contrast_agent_release_version }}-${{ github.ref_name }}
             tag_name: v${{ steps.fetch-contrast-agent-version.outputs.contrast_agent_release_version }}-${{ github.ref_name }}
-            draft: true
+            draft: false
             prerelease: true
             files: |
-              terracotta-pre-release.zip
+              terracotta-release.zip
           
