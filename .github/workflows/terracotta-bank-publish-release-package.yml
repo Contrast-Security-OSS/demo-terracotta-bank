@@ -1,8 +1,10 @@
 name: Terracotta Bank - Publish Release Package
 
 on:
-  schedule:
-    - cron: "0 0 * * 0" # Weekly at midnight on Sunday
+  push:
+    branches: '**'
+  pull_request:
+    branches: main
   workflow_dispatch:
 
 jobs:
@@ -329,6 +331,7 @@ jobs:
   #           .\release\terracotta-bank\terracotta-prod.log
 
   release:
+    if: ${{ github.ref == 'refs/heads/main' }}
     needs: [test-linux, test-macos]
     runs-on: ubuntu-latest
     steps:
@@ -352,3 +355,30 @@ jobs:
             prerelease: false
             files: |
               terracotta-release.zip
+  
+  pre-release:
+    if: ${{ github.ref != 'refs/heads/main' }}
+    needs: [test-linux, test-macos]
+    runs-on: ubuntu-latest
+    steps:
+        - name: Download Release Package
+          uses: actions/download-artifact@v4
+          with:
+            name: terracotta-bank-release
+
+        - name: Get Agent Version
+          id: fetch-contrast-agent-version
+          run: |
+            echo "contrast_agent_release_version=$(cat AGENT_VERSION)" >> $GITHUB_OUTPUT
+          
+        - name: Create Terracotta Bank Release
+          id: create-terracotta-bank-release
+          uses: softprops/action-gh-release@v1
+          with:
+            name: v${{ steps.fetch-contrast-agent-version.outputs.contrast_agent_release_version }}-${{ github.ref_name }}
+            tag_name: v${{ steps.fetch-contrast-agent-version.outputs.contrast_agent_release_version }}-${{ github.ref_name }}
+            draft: true
+            prerelease: true
+            files: |
+              terracotta-pre-release.zip
+          
