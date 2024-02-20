@@ -41,6 +41,7 @@ import com.joshcummings.codeplay.terracotta.servlet.MessagesServlet;
 import com.joshcummings.codeplay.terracotta.servlet.RegisterServlet;
 import com.joshcummings.codeplay.terracotta.servlet.SiteStatisticsServlet;
 import com.joshcummings.codeplay.terracotta.servlet.TransferMoneyServlet;
+import com.joshcummings.codeplay.terracotta.servlet.ErrorServlet;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -125,6 +126,11 @@ public class WebConfiguration extends WebMvcConfigurerAdapter {
 		bean.setFilter(new RequestClassificationFilter());
 		bean.setDispatcherTypes(REQUEST, DispatcherType.FORWARD, DispatcherType.ERROR);
 		return bean;
+	}
+
+	@Bean
+	public ServletRegistrationBean errorServelet() {
+		return this.servlet(new ErrorServlet(), "/error");
 	}
 
 	@Bean
