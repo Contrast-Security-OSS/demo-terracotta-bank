@@ -40,4 +40,4 @@ CMD ["java", "-jar", "terracotta-bank-servlet-0.0.1-SNAPSHOT.war"]
 #
 FROM runtime as contrast
 COPY --from=contrast/agent-java:latest /contrast/contrast-agent.jar /opt/contrast/contrast.jar
-ENV JAVA_TOOL_OPTIONS='-javaagent:/opt/contrast/contrast.jar -Dcontrast.application.name=terracotta-bank'
+#ENV JAVA_TOOL_OPTIONS='-javaagent:/opt/contrast/contrast.jar -Dcontrast.application.name=terracotta-bank'

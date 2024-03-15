@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  terracottaprod:
+    build: .
+    container_name: "terracotta-demo-prod"
+    env_file:
+      - .envprod
+      - .envcredentials
+    ports:
+      - "10002:8080"
+  terracottadev:
+    build: .
+    container_name: "terracotta-demo-dev"
+    env_file:
+      - .envdev
+      - .envcredentials
+    ports:
+      - "10000:8080"
+  terracottaqa:
+    build: .
+    container_name: "terracotta-demo-qa"
+    env_file:
+      - .envqa
+      - .envcredentials
+    ports:
+      - "10001:8080"
