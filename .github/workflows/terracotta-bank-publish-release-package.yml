@@ -116,6 +116,7 @@ jobs:
           cp contrast-agent.jar terracotta-bank/
           chmod u+x scripts/*.sh
           cp scripts/*.sh terracotta-bank/
+          cp scripts/*.md terracotta-bank/
           zip -r terracotta-release.zip terracotta-bank/  
           
       - name: Upload Terracotta Bank Release Package
@@ -160,7 +161,7 @@ jobs:
 
       - name: Test Start Script on Linux
         run: |
-          ./release/terracotta-bank/start.sh
+          ./release/terracotta-bank/start.sh all
 
       - name: Check Application on Port 8080 (Development)
         run: |
@@ -171,7 +172,7 @@ jobs:
 
       - name: Test Stop Script on Linux
         run: |
-          ./release/terracotta-bank/stop.sh
+          ./release/terracotta-bank/stop.sh all
 
       # TODO: Verify application is stopped.
 
@@ -216,7 +217,7 @@ jobs:
 
       - name: Test Start Script on MacOS
         run: |
-          ./release/terracotta-bank/start.sh
+          ./release/terracotta-bank/start.sh all
 
       - name: Check Application on Port 8080 (Development)
         run: |
@@ -228,7 +229,7 @@ jobs:
 
       - name: Test Stop Script on MacOS
         run: |
-          ./release/terracotta-bank/stop.sh
+          ./release/terracotta-bank/stop.sh all
 
       # TODO: Verify application is stopped.
   
