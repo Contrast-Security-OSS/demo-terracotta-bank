@@ -72,9 +72,10 @@ start_application() {
     nohup java \
         -Dcontrast.protect.enable=$PROTECT_ENABLE \
         -Dcontrast.assess.enable=$ASSESS_ENABLE \
+        -Dcontrast.observe.enable=true \
         -Dcontrast.server.name=terracotta-"$ENVIRONMENT" \
         -Dcontrast.server.environment="$ENVIRONMENT" \
-        -Dcontrast.config.path="$CONFIG_FILE" \
+        -Dcontrast.config.path="$SCRIPT_DIR/contrast_security.yaml" \
         -Dcontrast.agent.polling.app_activity_ms=1000 \
         -javaagent:"$SCRIPT_DIR/contrast-agent.jar" \
         -Dserver.port="$PORT" \
