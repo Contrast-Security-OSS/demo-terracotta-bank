@@ -18,10 +18,32 @@ stop_process_on_port() {
     done
 }
 
-# Stop the development server
-DEV_PORT=8080
-stop_process_on_port $DEV_PORT
-
-# Stop the production server
-PROD_PORT=8082
-stop_process_on_port $PROD_PORT
+# Check if an argument is provided
+if [ -n "$1" ]; then
+    # Stop the specified instance based on the argument
+    case "$1" in
+        "assess")
+            DEV_PORT=8080
+            stop_process_on_port $DEV_PORT
+            ;;
+        "protect")
+            PROD_PORT=8082
+            stop_process_on_port $PROD_PORT
+            ;;
+        "all")
+            DEV_PORT=8080
+            PROD_PORT=8082
+            stop_process_on_port $DEV_PORT
+            stop_process_on_port $PROD_PORT
+            ;;
+        *)
+            echo "Invalid argument. Usage: ./stop.sh {assess|protect|all}"
+            exit 1
+    esac
+else
+    # Default behavior: Stop all instances if no argument is provided
+    DEV_PORT=8080
+    PROD_PORT=8082
+    stop_process_on_port $DEV_PORT
+    stop_process_on_port $PROD_PORT
+fi
