@@ -1,20 +1,18 @@
 #!/bin/bash
 
-# Determine the directory where the script is located
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-
 # Function to check if a port is in use
 is_port_in_use() {
-    netstat -an | grep "$1" | grep LISTEN >/dev/null
+    local PORT=$1
+    netstat -an | grep "$PORT" | grep LISTEN >/dev/null
     return $?
 }
 
 # Function to check if the application is ready
 wait_for_server() {
-    PORT=$1
-    ENVIRONMENT=$2
-    MAX_ATTEMPTS=60
-    ATTEMPTS=0
+    local PORT=$1
+    local ENVIRONMENT=$2
+    local MAX_ATTEMPTS=60
+    local ATTEMPTS=0
     echo "Waiting for $ENVIRONMENT server on port $PORT to be ready..."
     while ! curl --output /dev/null --silent --head --fail http://localhost:"$PORT"; do
         if [ $ATTEMPTS -ge $MAX_ATTEMPTS ]; then
@@ -28,64 +26,95 @@ wait_for_server() {
     echo "$ENVIRONMENT server on port $PORT is ready!"
 }
 
-# Check for Java and its version
-JAVA_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
-if [[ -z "$JAVA_VERSION" ]]; then
-    echo "Java is not installed. Please install Java and try again."
-    exit 1
-else
-    JAVA_MAJOR_VERSION=$(echo "$JAVA_VERSION" | cut -d'.' -f1)
-    if [[ "$JAVA_MAJOR_VERSION" == "1" ]]; then
-        JAVA_MAJOR_VERSION=$(echo "$JAVA_VERSION" | cut -d'.' -f1-2 | cut -d'.' -f2)
-    fi
-    echo "Java version: $JAVA_VERSION"
-    if [[ "$JAVA_MAJOR_VERSION" -lt 8 || "$JAVA_MAJOR_VERSION" -gt 15 ]]; then
-        echo "Unsupported Java version: $JAVA_VERSION. Please use Java between version 8 and 15."
+# Check Java version
+check_java_version() {
+    local MIN_VERSION=8
+    local MAX_VERSION=15
+    local JAVA_VERSION
+    JAVA_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
+    if [[ -z "$JAVA_VERSION" ]]; then
+        echo "Java is not installed. Please install Java and try again."
         exit 1
+    else
+        local JAVA_MAJOR_VERSION
+        JAVA_MAJOR_VERSION=$(echo "$JAVA_VERSION" | cut -d'.' -f1)
+        if [[ "$JAVA_MAJOR_VERSION" == "1" ]]; then
+            JAVA_MAJOR_VERSION=$(echo "$JAVA_VERSION" | cut -d'.' -f1-2 | cut -d'.' -f2)
+        fi
+        echo "Java version: $JAVA_VERSION"
+        if ((JAVA_MAJOR_VERSION < MIN_VERSION || JAVA_MAJOR_VERSION > MAX_VERSION)); then
+            echo "Unsupported Java version: $JAVA_VERSION. Please use Java between version $MIN_VERSION and $MAX_VERSION."
+            exit 1
+        fi
     fi
-fi
+}
 
 # Check if the contrast_security.yaml file exists
-CONFIG_FILE="$SCRIPT_DIR/contrast_security.yaml"
-if [ ! -f "$CONFIG_FILE" ]; then
-    echo "Configuration file '$CONFIG_FILE' not found. Please ensure it is present in the same directory as this script."
-    exit 1
-fi
+check_config_file() {
+    local CONFIG_FILE="$SCRIPT_DIR/contrast_security.yaml"
+    if [ ! -f "$CONFIG_FILE" ]; then
+        echo "Configuration file '$CONFIG_FILE' not found. Please ensure it is present in the same directory as this script."
+        exit 1
+    fi
+}
 
-# Start the application in DEVELOPMENT mode (Assess)
-DEV_PORT=8080
-DEV_LOG="$SCRIPT_DIR/terracotta-dev.log"
-if is_port_in_use $DEV_PORT; then
-    echo "Development server port $DEV_PORT is already in use."
-    exit 1
-else
-    nohup java -Dcontrast.protect.enable=false \
-        -Dcontrast.assess.enable=true \
-        -Dcontrast.server.name=terracotta-dev \
-        -Dcontrast.server.environment=DEVELOPMENT \
+# Function to start the application
+start_application() {
+    local PORT=$1
+    local ENVIRONMENT=$2
+    local LOG_FILE="$SCRIPT_DIR/terracotta-$ENVIRONMENT.log"
+
+    if is_port_in_use "$PORT"; then
+        echo "$ENVIRONMENT server port $PORT is already in use."
+        exit 1
+    fi
+
+    nohup java \
+        -Dcontrast.protect.enable=$PROTECT_ENABLE \
+        -Dcontrast.assess.enable=$ASSESS_ENABLE \
+        -Dcontrast.server.name=terracotta-"$ENVIRONMENT" \
+        -Dcontrast.server.environment="$ENVIRONMENT" \
         -Dcontrast.config.path="$CONFIG_FILE" \
         -Dcontrast.agent.polling.app_activity_ms=1000 \
         -javaagent:"$SCRIPT_DIR/contrast-agent.jar" \
-        -Dserver.port=$DEV_PORT \
-        -jar "$SCRIPT_DIR/terracotta.war" >"$DEV_LOG" 2>&1 &
-    wait_for_server $DEV_PORT "DEVELOPMENT"
-fi
+        -Dserver.port="$PORT" \
+        -jar "$SCRIPT_DIR/terracotta.war" >"$LOG_FILE" 2>&1 &
 
-# Start the application in PRODUCTION mode (Protect)
-PROD_PORT=8082
-PROD_LOG="$SCRIPT_DIR/terracotta-prod.log"
-if is_port_in_use $PROD_PORT; then
-    echo "Production server port $PROD_PORT is already in use."
-    exit 1
-else
-    nohup java -Dcontrast.protect.enable=true \
-        -Dcontrast.assess.enable=false \
-        -Dcontrast.server.name=terracotta-prod \
-        -Dcontrast.server.environment=PRODUCTION \
-        -Dcontrast.config.path="$CONFIG_FILE" \
-        -Dcontrast.agent.polling.app_activity_ms=1000 \
-        -javaagent:"$SCRIPT_DIR/contrast-agent.jar" \
-        -Dserver.port=$PROD_PORT \
-        -jar "$SCRIPT_DIR/terracotta.war" >"$PROD_LOG" 2>&1 &
-    wait_for_server $PROD_PORT "PRODUCTION"
-fi
+    wait_for_server "$PORT" "$ENVIRONMENT"
+}
+
+# Main script
+
+# Determine the directory where the script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+# Configuration options
+PROTECT_ENABLE=false
+ASSESS_ENABLE=false
+
+# Check Java version
+check_java_version
+
+# Check configuration file
+check_config_file
+
+# Start the application based on command-line arguments
+case "$(echo "$1" | tr '[:upper:]' '[:lower:]')" in
+    "assess")
+        ASSESS_ENABLE=true
+        start_application 8080 "DEVELOPMENT"
+        ;;
+    "protect")
+        PROTECT_ENABLE=true
+        start_application 8082 "PRODUCTION"
+        ;;
+    "all")
+        ASSESS_ENABLE=true
+        PROTECT_ENABLE=true
+        start_application 8080 "DEVELOPMENT"
+        start_application 8082 "PRODUCTION"
+        ;;
+    *)
+        echo "Usage: $0 {assess|protect|all}"
+        exit 1
+esac
