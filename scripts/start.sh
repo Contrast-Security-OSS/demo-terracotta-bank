@@ -146,7 +146,7 @@ download_jre() {
         return 1
     fi
 
-    DEST_DIR="$BASE_DIR/$OS/$ARCHITECTURE"
+    DEST_DIR="$SCRIPT_DIR/$BASE_DIR/$OS/$ARCHITECTURE"
     mkdir -p "$DEST_DIR"
 
     tar -xzf "$TEMP_DIR"/*.tar.gz -C "$DEST_DIR" --strip-components=1
