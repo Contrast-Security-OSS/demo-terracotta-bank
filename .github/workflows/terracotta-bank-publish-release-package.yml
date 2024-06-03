@@ -55,7 +55,7 @@ jobs:
         with:
           name: terracotta-bank-artifacts
 
-      - name: Download JDKs
+      - name: Download JREs
         run: |
           chmod +x ./scripts/download-jres.sh
           ./scripts/download-jres.sh
@@ -117,7 +117,7 @@ jobs:
         run: |
           LATEST_AGENT_RELEASE_VERSION=${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
           mkdir terracotta-bank
-          mv -r jre/ terracotta-bank/jre/
+          mv jre/ terracotta-bank/jre/
           cp terracotta.war terracotta-bank/terracotta.war
           cp contrast-agent.jar terracotta-bank/
           chmod u+x scripts/*.sh
