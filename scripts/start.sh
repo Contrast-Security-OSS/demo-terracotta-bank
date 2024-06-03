@@ -191,14 +191,6 @@ check_jre_downloaded() {
     fi
 }
 
-# Check downloaded JRE version
-# check_downloaded_jre_version() {
-#     local OS_ARCH=$1
-#     local JAVA_VERSION
-#     JAVA_VERSION=$("$JAVA_HOME/bin/java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
-#     echo "Downloaded Java version: $JAVA_VERSION"
-# }
-
 # Check if the contrast_security.yaml file exists
 check_config_file() {
     local CONFIG_FILE="$SCRIPT_DIR/contrast_security.yaml"
@@ -221,7 +213,7 @@ start_application() {
         exit 1
     fi
 
-    nohup "$JAVA_HOME/bin/java" \
+    nohup "$JAVA_BIN" \
         -Dcontrast.protect.enable=$PROTECT_ENABLE \
         -Dcontrast.assess.enable=$ASSESS_ENABLE \
         -Dcontrast.observe.enable=true \
@@ -258,13 +250,7 @@ fi
 
 # Detect OS and Architecture
 OS_ARCH=$(detect_os_arch)
-
-# Determine the correct JAVA_HOME based on OS and architecture
-if [[ "$OS_ARCH" == "mac/x64" || "$OS_ARCH" == "mac/aarch64" ]]; then
-    JAVA_HOME="$SCRIPT_DIR/jre/$OS_ARCH/Contents/Home"
-else
-    JAVA_HOME="$SCRIPT_DIR/jre/$OS_ARCH"
-fi
+echo "Detected OS/ARCH: $OS_ARCH"
 
 # Check Java version and download JRE if necessary
 if (! check_installed_java_version); then
@@ -278,14 +264,19 @@ if (! check_installed_java_version); then
             echo "Error: Failed to download the required JRE for $OS_ARCH."
             exit 1
         fi
+        JAVA_HOME="$SCRIPT_DIR/jre/$OS_ARCH"
+        export JAVA_HOME
     fi
     if [[ "$OS_ARCH" == "mac/x64" || "$OS_ARCH" == "mac/aarch64" ]]; then
-        JAVA_HOME="$SCRIPT_DIR/jre/$OS_ARCH/Contents/Home"
+        JAVA_BIN="$JAVA_HOME/Contents/Home/bin/java"
     else
-        JAVA_HOME="$SCRIPT_DIR/jre/$OS_ARCH"
+        JAVA_BIN="$JAVA_HOME/bin/java"
     fi
-    export JAVA_HOME
+    export JAVA_BIN
     # check_downloaded_jre_version "$OS_ARCH"
+else
+    JAVA_BIN=$(command -v java)
+    export JAVA_BIN
 fi
 
 # Check configuration file
