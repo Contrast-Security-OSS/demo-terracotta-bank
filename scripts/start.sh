@@ -263,11 +263,6 @@ if ! command -v curl >/dev/null; then
     exit 1
 fi
 
-if ! command -v sha256sum >/dev/null; then
-    echo "Error: 'sha256sum' command not found. Please install 'sha256sum' to run this script."
-    exit 1
-fi
-
 if ! command -v tar >/dev/null; then
     echo "Error: 'tar' command not found. Please install 'tar' to run this script."
     exit 1
