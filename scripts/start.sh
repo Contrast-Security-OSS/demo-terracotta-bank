@@ -186,12 +186,12 @@ check_jre_downloaded() {
 }
 
 # Check downloaded JRE version
-check_downloaded_jre_version() {
-    local OS_ARCH=$1
-    local JAVA_VERSION
-    JAVA_VERSION=$("$JAVA_HOME/bin/java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
-    echo "Downloaded Java version: $JAVA_VERSION"
-}
+# check_downloaded_jre_version() {
+#     local OS_ARCH=$1
+#     local JAVA_VERSION
+#     JAVA_VERSION=$("$JAVA_HOME/bin/java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
+#     echo "Downloaded Java version: $JAVA_VERSION"
+# }
 
 # Check if the contrast_security.yaml file exists
 check_config_file() {
@@ -279,7 +279,7 @@ if (! check_installed_java_version); then
         JAVA_HOME="$SCRIPT_DIR/jre/$OS_ARCH"
     fi
     export JAVA_HOME
-    check_downloaded_jre_version "$OS_ARCH"
+    # check_downloaded_jre_version "$OS_ARCH"
 fi
 
 # Check configuration file
