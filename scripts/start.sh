@@ -101,20 +101,6 @@ fetch_release_information() {
     return 0
 }
 
-# Function to prompt for user confirmation
-prompt_confirmation() {
-    read -r -p "Do you want to proceed with downloading the JRE for $1? [y/N] " response
-    case "$response" in
-    [yY][eE][sS] | [yY])
-        return 0
-        ;;
-    *)
-        echo "Download aborted by user."
-        return 1
-        ;;
-    esac
-}
-
 # Function to download a file with retries
 download_file() {
     local URL=$1
@@ -144,10 +130,6 @@ download_jre() {
 
     if ! fetch_release_information "$ARCHITECTURE" "$OS"; then
         echo "Error: Failed to fetch release information for $OS $ARCHITECTURE."
-        return 1
-    fi
-
-    if ! prompt_confirmation "$OS/$ARCHITECTURE"; then
         return 1
     fi
 
