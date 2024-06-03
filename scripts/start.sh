@@ -35,6 +35,7 @@ wait_for_server() {
     while [ $CURL_OUTPUT -ne 0 ]; do
         if [ $ATTEMPTS -ge $MAX_ATTEMPTS ]; then
             echo "Timeout reached. $ENVIRONMENT server on port $PORT is not responding."
+            cat "$LOG_FILE"
             exit 1
         fi
         printf '.'
