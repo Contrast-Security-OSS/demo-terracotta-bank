@@ -47,8 +47,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Install Packages
-        run: sudo apt-get install -y libxml2-utils gnupg2
+      - name: Install Dependencies
+        run: sudo apt-get install -y libxml2-utils gnupg2 jq unzip zip
+      
+      - name: Download JDKs
+        run: |
+          chmod +x scripts/download-jres.sh
+          ./scripts/download-jres.sh
 
       - name: Download Terracotta Bank WAR
         uses: actions/download-artifact@v4
@@ -112,12 +117,14 @@ jobs:
         run: |
           LATEST_AGENT_RELEASE_VERSION=${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
           mkdir terracotta-bank
+          mv -r jre/ terracotta-bank/jre/
           cp terracotta.war terracotta-bank/terracotta.war
           cp contrast-agent.jar terracotta-bank/
           chmod u+x scripts/*.sh
-          cp scripts/*.sh terracotta-bank/
-          cp scripts/*.md terracotta-bank/
-          zip -r terracotta-release.zip terracotta-bank/  
+          cp scripts/start.sh terracotta-bank/
+          cp scripts/stop.sh terracotta-bank/
+          cp scripts/INSTRUCTIONS.md terracotta-bank/
+          zip -r terracotta-release.zip terracotta-bank/
           
       - name: Upload Terracotta Bank Release Package
         id: upload-terracotta-bank-release-package
@@ -382,4 +389,3 @@ jobs:
             prerelease: true
             files: |
               terracotta-release.zip
-          

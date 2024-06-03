@@ -26,12 +26,52 @@ wait_for_server() {
     echo "$ENVIRONMENT server on port $PORT is ready!"
 }
 
-# Check Java version
+# Function to check the operating system and architecture
+detect_os_arch() {
+    local OS
+    local ARCH
+
+    OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+    ARCH=$(uname -m)
+
+    case "$ARCH" in
+    x86_64)
+        ARCH="x64"
+        ;;
+    aarch64)
+        ARCH="aarch64"
+        ;;
+    arm64)
+        ARCH="aarch64"
+        ;;
+    *)
+        echo "Unsupported architecture: $ARCH"
+        exit 1
+        ;;
+    esac
+
+    case "$OS" in
+    linux)
+        OS="linux"
+        ;;
+    darwin)
+        OS="mac"
+        ;;
+    *)
+        echo "Unsupported operating system: $OS"
+        exit 1
+        ;;
+    esac
+
+    echo "$OS/$ARCH"
+}
+
+# Function to check Java version
 check_java_version() {
     local MIN_VERSION=8
     local MAX_VERSION=15
     local JAVA_VERSION
-    JAVA_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
+    JAVA_VERSION=$("$JAVA_HOME/bin/java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
     if [[ -z "$JAVA_VERSION" ]]; then
         echo "Java is not installed. Please install Java and try again."
         exit 1
@@ -69,7 +109,7 @@ start_application() {
         exit 1
     fi
 
-    nohup java \
+    nohup "$JAVA_HOME/bin/java" \
         -Dcontrast.protect.enable=$PROTECT_ENABLE \
         -Dcontrast.assess.enable=$ASSESS_ENABLE \
         -Dcontrast.observe.enable=true \
@@ -93,6 +133,17 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 PROTECT_ENABLE=false
 ASSESS_ENABLE=false
 
+# Detect OS and Architecture
+OS_ARCH=$(detect_os_arch)
+
+if [[ "$OS_ARCH" == "mac/x64" || "$OS_ARCH" == "mac/aarch64" ]]; then
+    JAVA_HOME="$SCRIPT_DIR/jre/$OS_ARCH/Contents/Home"
+else
+    JAVA_HOME="$SCRIPT_DIR/jre/$OS_ARCH"
+fi
+
+export JAVA_HOME
+
 # Check Java version
 check_java_version
 
@@ -100,22 +151,31 @@ check_java_version
 check_config_file
 
 # Start the application based on command-line arguments
-case "$(echo "$1" | tr '[:upper:]' '[:lower:]')" in
-    "assess")
-        ASSESS_ENABLE=true
-        start_application 8080 "DEVELOPMENT"
-        ;;
-    "protect")
-        PROTECT_ENABLE=true
-        start_application 8082 "PRODUCTION"
-        ;;
-    "all")
-        ASSESS_ENABLE=true
-        PROTECT_ENABLE=true
-        start_application 8080 "DEVELOPMENT"
-        start_application 8082 "PRODUCTION"
-        ;;
-    *)
-        echo "Usage: $0 {assess|protect|all}"
-        exit 1
+if [[ -z "$1" ]]; then
+    COMMAND="all"
+else
+    COMMAND="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+fi
+
+case "$COMMAND" in
+"assess")
+    ASSESS_ENABLE=true
+    start_application 8080 "DEVELOPMENT"
+    ;;
+"protect")
+    PROTECT_ENABLE=true
+    start_application 8082 "PRODUCTION"
+    ;;
+"all")
+    ASSESS_ENABLE=true
+    PROTECT_ENABLE=false
+    start_application 8080 "DEVELOPMENT"
+    ASSESS_ENABLE=false
+    PROTECT_ENABLE=true
+    start_application 8082 "PRODUCTION"
+    ;;
+*)
+    echo "Usage: $0 {assess|protect|all}"
+    exit 1
+    ;;
 esac

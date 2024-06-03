@@ -94,3 +94,9 @@ contrast.jar
 
 ### Cache
 **/cache/
+
+### MacOS
+.DS_Store
+
+### Package Files
+jre/
