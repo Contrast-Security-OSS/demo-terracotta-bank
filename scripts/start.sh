@@ -31,7 +31,6 @@ wait_for_server() {
     echo "Waiting for $ENVIRONMENT server on port $PORT to be ready..."
     curl --output /dev/null --silent --head --fail http://localhost:"$PORT"
     local CURL_OUTPUT=$?
-    echo "Exit status of curl: $CURL_OUTPUT"
     while [ $CURL_OUTPUT -ne 0 ]; do
         if [ $ATTEMPTS -ge $MAX_ATTEMPTS ]; then
             echo "Timeout reached. $ENVIRONMENT server on port $PORT is not responding."
@@ -43,7 +42,6 @@ wait_for_server() {
         ATTEMPTS=$((ATTEMPTS + 1))
         curl --output /dev/null --silent --head --fail http://localhost:"$PORT"
         CURL_OUTPUT=$?
-        echo "Exit status of curl: $CURL_OUTPUT"
     done
     echo "$ENVIRONMENT server on port $PORT is ready!"
 }
