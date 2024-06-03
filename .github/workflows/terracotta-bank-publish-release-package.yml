@@ -40,7 +40,7 @@ jobs:
           name: terracotta-bank-artifacts
           path: |
             terracotta.war
-            scripts/     
+            scripts/
 
   package:
     needs: build
@@ -49,17 +49,17 @@ jobs:
 
       - name: Install Dependencies
         run: sudo apt-get install -y libxml2-utils gnupg2 jq unzip zip
-      
-      - name: Download JDKs
-        run: |
-          chmod +x scripts/download-jres.sh
-          ./scripts/download-jres.sh
 
-      - name: Download Terracotta Bank WAR
+      - name: Download Terracotta Bank WAR and Scripts
         uses: actions/download-artifact@v4
         with:
           name: terracotta-bank-artifacts
 
+      - name: Download JDKs
+        run: |
+          chmod +x ./scripts/download-jres.sh
+          ./scripts/download-jres.sh
+    
       - name: Fetch Latest Contrast Agent Version
         id: fetch-latest-contrast-agent-version
         run: |
