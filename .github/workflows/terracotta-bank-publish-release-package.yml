@@ -41,6 +41,7 @@ jobs:
           path: |
             terracotta.war
             scripts/
+            docs/
 
   package:
     needs: build
@@ -55,11 +56,6 @@ jobs:
         with:
           name: terracotta-bank-artifacts
 
-      # - name: Download JREs
-      #   run: |
-      #     chmod +x ./scripts/download-jres.sh
-      #     ./scripts/download-jres.sh
-    
       - name: Fetch Latest Contrast Agent Version
         id: fetch-latest-contrast-agent-version
         run: |
@@ -111,18 +107,21 @@ jobs:
           LATEST_AGENT_RELEASE_VERSION=${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
           echo "Downloading Contrast Agent version $LATEST_AGENT_RELEASE_VERSION"
           wget -O contrast-agent.jar "https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/${LATEST_AGENT_RELEASE_VERSION}/contrast-agent-${LATEST_AGENT_RELEASE_VERSION}.jar"
-
+      
+      - name: Download Latest Free Trial Guide
+        run: |
+          curl -s https://www.contrastsecurity.com/hubfs/FREE%20TRIAL%20FY25/Free-Trial-Quick-Start-guide-Contrast-Security.pdf -o docs/Free-Trial-Quick-Start-guide-Contrast-Security.pdf
       - name: Prepare Terracotta Bank Release Package
         id: prepare-terracotta-bank-release-package
         run: |
           LATEST_AGENT_RELEASE_VERSION=${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
-          mkdir terracotta-bank
+          mkdir -p terracotta-bank/docs
           cp terracotta.war terracotta-bank/terracotta.war
           cp contrast-agent.jar terracotta-bank/
           chmod u+x scripts/*.sh
           cp scripts/start.sh terracotta-bank/
           cp scripts/stop.sh terracotta-bank/
-          cp scripts/INSTRUCTIONS.md terracotta-bank/
+          cp -R docs/ terracotta-bank/docs/
           zip -r terracotta-release.zip terracotta-bank/
           
       - name: Upload Terracotta Bank Release Package
