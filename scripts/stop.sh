@@ -18,32 +18,58 @@ stop_process_on_port() {
     done
 }
 
-# Check if an argument is provided
-if [ -n "$1" ]; then
-    # Stop the specified instance based on the argument
-    case "$1" in
-        "assess")
-            DEV_PORT=8080
-            stop_process_on_port $DEV_PORT
-            ;;
-        "protect")
-            PROD_PORT=8082
-            stop_process_on_port $PROD_PORT
-            ;;
-        "all")
-            DEV_PORT=8080
-            PROD_PORT=8082
-            stop_process_on_port $DEV_PORT
-            stop_process_on_port $PROD_PORT
-            ;;
-        *)
-            echo "Invalid argument. Usage: ./stop.sh {assess|protect|all}"
-            exit 1
-    esac
+# Stop the application based on command-line arguments
+if [[ -z "$1" ]]; then
+    COMMAND="all"
+    if [ -z "$2" ]; then
+        ASSESS_PORT=8080
+        PROTECT_PORT=8082
+    else
+        ASSESS_PORT=$2
+        PROTECT_PORT=$3
+    fi
 else
-    # Default behavior: Stop all instances if no argument is provided
-    DEV_PORT=8080
-    PROD_PORT=8082
-    stop_process_on_port $DEV_PORT
-    stop_process_on_port $PROD_PORT
+    COMMAND="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+    if [[ $COMMAND == "assess" ]]; then
+        if [[ -z "$2" ]]; then
+            ASSESS_PORT=8080
+        else
+            ASSESS_PORT=$2
+        fi
+    elif [[ $COMMAND == "protect" ]]; then
+        if [[ -z "$2" ]]; then
+            PROTECT_PORT=8082
+        else
+            PROTECT_PORT=$2
+        fi
+    elif [[ $COMMAND == "all" ]]; then
+        if [[ -z "$2" ]]; then
+            ASSESS_PORT=8080
+            PROTECT_PORT=8082
+        else
+            ASSESS_PORT=$2
+            PROTECT_PORT=$3
+        fi
+    fi
 fi
+echo "Command: $COMMAND"
+echo "Assess Port: $ASSESS_PORT"
+echo "Protect Port: $PROTECT_PORT"
+
+# If the command is not provided
+case "$COMMAND" in
+"assess")
+    stop_process_on_port "$ASSESS_PORT" "DEVELOPMENT"
+    ;;
+"protect")
+    stop_process_on_port "$PROTECT_PORT" "PRODUCTION"
+    ;;
+"all")
+    stop_process_on_port "$ASSESS_PORT" "DEVELOPMENT"
+    stop_process_on_port "$PROTECT_PORT" "PRODUCTION"
+    ;;
+*)
+    echo "Usage: $0 {assess|protect|all} [ASSESS_PORT] [PROTECT_PORT]"
+    exit 1
+    ;;
+esac

@@ -284,28 +284,60 @@ check_config_file
 # Start the application based on command-line arguments
 if [[ -z "$1" ]]; then
     COMMAND="all"
+    if [ -z "$2" ]; then
+        ASSESS_PORT=8080
+        PROTECT_PORT=8082
+    else
+        ASSESS_PORT=$2
+        PROTECT_PORT=$3
+    fi
 else
     COMMAND="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+    if [[ $COMMAND == "assess" ]]; then
+        if [[ -z "$2" ]]; then
+            ASSESS_PORT=8080
+        else
+            ASSESS_PORT=$2
+        fi
+    elif [[ $COMMAND == "protect" ]]; then
+        if [[ -z "$2" ]]; then
+            PROTECT_PORT=8082
+        else
+            PROTECT_PORT=$2
+        fi
+    elif [[ $COMMAND == "all" ]]; then
+        if [[ -z "$2" ]]; then
+            ASSESS_PORT=8080
+            PROTECT_PORT=8082
+        else
+            ASSESS_PORT=$2
+            PROTECT_PORT=$3
+        fi
+    fi
 fi
+echo "Command: $COMMAND"
+echo "Assess Port: $ASSESS_PORT"
+echo "Protect Port: $PROTECT_PORT"
 
+# If the command is not provided
 case "$COMMAND" in
 "assess")
     ASSESS_ENABLE=true
-    start_application 8080 "DEVELOPMENT"
+    start_application "$ASSESS_PORT" "DEVELOPMENT"
     ;;
 "protect")
     PROTECT_ENABLE=true
-    start_application 8082 "PRODUCTION"
+    start_application "$PROTECT_PORT" "PRODUCTION"
     ;;
 "all")
     ASSESS_ENABLE=true
-    start_application 8080 "DEVELOPMENT"
+    start_application "$ASSESS_PORT" "DEVELOPMENT"
     ASSESS_ENABLE=false
     PROTECT_ENABLE=true
-    start_application 8082 "PRODUCTION"
+    start_application "$PROTECT_PORT" "PRODUCTION"
     ;;
 *)
-    echo "Usage: $0 {assess|protect|all}"
+    echo "Usage: $0 {assess|protect|all} [ASSESS_PORT] [PROTECT_PORT]"
     exit 1
     ;;
 esac
