@@ -281,7 +281,6 @@ main() {
 
     # Detect OS and Architecture
     OS_ARCH=$(detect_os_arch)
-    echo "$OS_ARCH"
     print_info "Detected OS/ARCH: $OS_ARCH"
 
     # Check Java version and download JRE if necessary
