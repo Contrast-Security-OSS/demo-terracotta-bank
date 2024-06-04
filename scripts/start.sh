@@ -15,6 +15,34 @@ MAX_RETRIES=3
 # Base directory for JREs
 BASE_DIR="jre"
 
+# Text Colors
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+WHITE=$(tput setaf 7)
+GREY=$(tput setaf 8)
+RESET=$(tput sgr0)
+
+print_success() {
+    echo -e "${GREEN}SUCCESS: $1${RESET}"
+}
+
+print_error() {
+    echo -e "${RED}ERROR: $1${RESET}"
+}
+
+print_warning() {
+    echo -e "${YELLOW}WARNING: $1${RESET}"
+}
+
+print_info() {
+    echo -e "${WHITE}INFO: $1${RESET}"
+}
+
+print_debug() {
+    echo -e "${GREY}DEBUG: $1${RESET}"
+}
+
 # Function to check if a port is in use
 is_port_in_use() {
     local PORT=$1
@@ -28,12 +56,12 @@ wait_for_server() {
     local ENVIRONMENT=$2
     local MAX_ATTEMPTS=60
     local ATTEMPTS=0
-    echo "Waiting for $ENVIRONMENT server on port $PORT to be ready..."
+    print_info "Waiting for $ENVIRONMENT server on port $PORT to be ready..."
     curl --output /dev/null --silent --head --fail http://localhost:"$PORT"
     local CURL_OUTPUT=$?
     while [ $CURL_OUTPUT -ne 0 ]; do
         if [ $ATTEMPTS -ge $MAX_ATTEMPTS ]; then
-            echo "Timeout reached. $ENVIRONMENT server on port $PORT is not responding."
+            print_error "Timeout reached. $ENVIRONMENT server on port $PORT is not responding."
             cat "$LOG_FILE"
             exit 1
         fi
@@ -43,7 +71,8 @@ wait_for_server() {
         curl --output /dev/null --silent --head --fail http://localhost:"$PORT"
         CURL_OUTPUT=$?
     done
-    echo "$ENVIRONMENT server on port $PORT is ready!"
+    printf '\n'
+    print_success "$ENVIRONMENT server on port $PORT is ready!"
 }
 
 # Function to check the operating system and architecture
@@ -61,7 +90,7 @@ detect_os_arch() {
         ARCH="aarch64"
         ;;
     *)
-        echo "Unsupported architecture: $ARCH"
+        print_error "Unsupported architecture: $ARCH"
         exit 1
         ;;
     esac
@@ -74,7 +103,7 @@ detect_os_arch() {
         OS="mac"
         ;;
     *)
-        echo "Unsupported operating system: $OS"
+        print_error "Unsupported operating system: $OS"
         exit 1
         ;;
     esac
@@ -88,18 +117,18 @@ fetch_release_information() {
     local OS=$2
     local RELEASE_URL="https://api.adoptium.net/v3/assets/feature_releases/${FEATURE_VERSION}/${RELEASE_TYPE}?architecture=${ARCHITECTURE}&heap_size=${HEAP_SIZE}&image_type=${IMAGE_TYPE}&jvm_impl=${JVM_IMPL}&os=${OS}&page=0&page_size=1&project=${PROJECT}&sort_method=DEFAULT&sort_order=DESC&vendor=${VENDOR}"
 
-    echo "Release URL for $OS $ARCHITECTURE: $RELEASE_URL"
+    print_info "Java Release URL for $OS $ARCHITECTURE: $RELEASE_URL"
 
     local FEATURE_RELEASE_INFORMATION
     if ! FEATURE_RELEASE_INFORMATION=$(curl -s "$RELEASE_URL"); then
-        echo "Error: Failed to fetch release information from $RELEASE_URL."
+        print_error "Failed to fetch release information from $RELEASE_URL."
         return 1
     fi
 
     DOWNLOAD_LINK=$(echo "$FEATURE_RELEASE_INFORMATION" | awk -F '"' '/"link": ".*\.tar\.gz"/ {print $4}' | head -n 1)
 
     if [ -z "$DOWNLOAD_LINK" ]; then
-        echo "Error: Failed to get download link for $OS $ARCHITECTURE."
+        print_error "Failed to get download link for $OS $ARCHITECTURE."
         return 1
     fi
 
@@ -116,12 +145,12 @@ download_file() {
         if curl -L -o "$DEST_DIR/$(basename "$URL")" "$URL"; then
             return 0
         fi
-        echo "Download failed. Retrying... ($((RETRY_COUNT + 1))/$MAX_RETRIES)"
+        print_warning "Download failed. Retrying... ($((RETRY_COUNT + 1))/$MAX_RETRIES)"
         RETRY_COUNT=$((RETRY_COUNT + 1))
         sleep 2
     done
 
-    echo "Error: Failed to download file from $URL after $MAX_RETRIES retries."
+    print_error "Failed to download file from $URL after $MAX_RETRIES retries."
     return 1
 }
 
@@ -134,13 +163,13 @@ download_jre() {
     trap 'rm -rf -- "$TEMP_DIR"' EXIT
 
     if ! fetch_release_information "$ARCHITECTURE" "$OS"; then
-        echo "Error: Failed to fetch release information for $OS $ARCHITECTURE."
+        print_error "Failed to fetch release information for $OS $ARCHITECTURE."
         return 1
     fi
 
-    echo "Downloading JRE for $OS $ARCHITECTURE..."
+    print_info "Downloading JRE for $OS $ARCHITECTURE..."
     if ! download_file "$DOWNLOAD_LINK" "$TEMP_DIR"; then
-        echo "Error: Failed to download JRE for $OS $ARCHITECTURE."
+        print_error "Failed to download JRE for $OS $ARCHITECTURE."
         return 1
     fi
 
@@ -149,7 +178,7 @@ download_jre() {
 
     tar -xzf "$TEMP_DIR"/*.tar.gz -C "$DEST_DIR" --strip-components=1
 
-    echo "JRE for $OS $ARCHITECTURE download, verification, and extraction complete."
+    print_success "JRE for $OS $ARCHITECTURE download, verification, and extraction complete."
 }
 
 # Check Java version
@@ -157,9 +186,11 @@ check_installed_java_version() {
     local MIN_VERSION=8
     local MAX_VERSION=15
     local JAVA_VERSION
+
+    print_info "Checking installed Java version..."
     JAVA_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
     if [[ -z "$JAVA_VERSION" ]]; then
-        echo "Java is not installed. Please install Java and try again."
+        print_error "Java is not installed. Java 11 will be downloaded for you."
         return 1
     else
         local JAVA_MAJOR_VERSION
@@ -167,9 +198,10 @@ check_installed_java_version() {
         if [[ "$JAVA_MAJOR_VERSION" == "1" ]]; then
             JAVA_MAJOR_VERSION=$(echo "$JAVA_VERSION" | cut -d'.' -f1-2 | cut -d'.' -f2)
         fi
-        echo "Installed Java version: $JAVA_VERSION"
+        print_info "Installed Java version: $JAVA_VERSION"
         if ((JAVA_MAJOR_VERSION < MIN_VERSION || JAVA_MAJOR_VERSION > MAX_VERSION)); then
-            echo "Installed Java version unsupported: $JAVA_VERSION. Supported versions are: $MIN_VERSION to $MAX_VERSION."
+            print_warning "Installed Java version unsupported: $JAVA_VERSION. Supported versions are: $MIN_VERSION to $MAX_VERSION."
+            print_info "Java 11 will be downloaded for you."
             return 1
         fi
     fi
@@ -180,12 +212,11 @@ check_installed_java_version() {
 check_jre_downloaded() {
     local OS_ARCH=$1
     local DEST_DIR="$BASE_DIR/$OS_ARCH"
-    echo "Directory: $DEST_DIR"
     if [ -d "$DEST_DIR" ]; then
-        echo "JRE for $OS_ARCH is already downloaded."
+        print_success "JRE for $OS_ARCH is already downloaded."
         return 0
     else
-        echo "JRE for $OS_ARCH is not downloaded."
+        print_info "JRE for $OS_ARCH is not downloaded."
         return 1
     fi
 }
@@ -194,7 +225,8 @@ check_jre_downloaded() {
 check_config_file() {
     local CONFIG_FILE="$SCRIPT_DIR/contrast_security.yaml"
     if [ ! -f "$CONFIG_FILE" ]; then
-        echo "Configuration file '$CONFIG_FILE' not found. Please ensure it is present in the same directory as this script."
+        print_error "Configuration file '$CONFIG_FILE' not found. Please ensure it is present in the same directory as this script."
+        print_error "Refer to the Quick Start Guide in the docs directory for more information."
         exit 1
     fi
 }
@@ -208,7 +240,7 @@ start_application() {
     mkdir -p "$SCRIPT_DIR/logs"
 
     if is_port_in_use "$PORT"; then
-        echo "$ENVIRONMENT server port $PORT is already in use."
+        print_error "$ENVIRONMENT server port $PORT is already in use."
         exit 1
     fi
 
@@ -228,116 +260,117 @@ start_application() {
 }
 
 # Main script
+main() {
+    # Determine the directory where the script is located
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
-# Determine the directory where the script is located
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+    # Configuration options
+    PROTECT_ENABLE=false
+    ASSESS_ENABLE=false
 
-# Configuration options
-PROTECT_ENABLE=false
-ASSESS_ENABLE=false
-
-# Check if the required commands are available
-if ! command -v curl >/dev/null; then
-    echo "Error: 'curl' command not found. Please install 'curl' to run this script."
-    exit 1
-fi
-
-if ! command -v tar >/dev/null; then
-    echo "Error: 'tar' command not found. Please install 'tar' to run this script."
-    exit 1
-fi
-
-# Detect OS and Architecture
-OS_ARCH=$(detect_os_arch)
-echo "Detected OS/ARCH: $OS_ARCH"
-
-# Check Java version and download JRE if necessary
-if (! check_installed_java_version); then
-    echo "Checking and setting up the required JRE for $OS_ARCH..."
-    if (check_jre_downloaded "$OS_ARCH"); then
-        JAVA_HOME="$SCRIPT_DIR/jre/$OS_ARCH"
-        export JAVA_HOME
-    else
-        echo "Downloading and setting up the required JRE for $OS_ARCH..."
-        if ! download_jre "$(echo "$OS_ARCH" | cut -d'/' -f2)" "$(echo "$OS_ARCH" | cut -d'/' -f1)"; then
-            echo "Error: Failed to download the required JRE for $OS_ARCH."
-            exit 1
-        fi
-        JAVA_HOME="$SCRIPT_DIR/jre/$OS_ARCH"
-        export JAVA_HOME
+    # Check if the required commands are available
+    if ! command -v curl >/dev/null; then
+        print_error "'curl' command not found. Please install 'curl' to run this script."
+        exit 1
     fi
-    if [[ "$OS_ARCH" == "mac/x64" || "$OS_ARCH" == "mac/aarch64" ]]; then
-        JAVA_BIN="$JAVA_HOME/Contents/Home/bin/java"
-    else
-        JAVA_BIN="$JAVA_HOME/bin/java"
-    fi
-    export JAVA_BIN
-    # check_downloaded_jre_version "$OS_ARCH"
-else
-    JAVA_BIN=$(command -v java)
-    export JAVA_BIN
-fi
 
-# Check configuration file
-check_config_file
-
-# Start the application based on command-line arguments
-if [[ -z "$1" ]]; then
-    COMMAND="all"
-    if [ -z "$2" ]; then
-        ASSESS_PORT=8080
-        PROTECT_PORT=8082
-    else
-        ASSESS_PORT=$2
-        PROTECT_PORT=$3
+    if ! command -v tar >/dev/null; then
+        print_error "'tar' command not found. Please install 'tar' to run this script."
+        exit 1
     fi
-else
-    COMMAND="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
-    if [[ $COMMAND == "assess" ]]; then
-        if [[ -z "$2" ]]; then
-            ASSESS_PORT=8080
+
+    # Detect OS and Architecture
+    OS_ARCH=$(detect_os_arch)
+    echo "$OS_ARCH"
+    print_info "Detected OS/ARCH: $OS_ARCH"
+
+    # Check Java version and download JRE if necessary
+    if (! check_installed_java_version); then
+        print_info "Checking and setting up the required JRE for $OS_ARCH..."
+        if (check_jre_downloaded "$OS_ARCH"); then
+            JAVA_HOME="$SCRIPT_DIR/jre/$OS_ARCH"
+            export JAVA_HOME
         else
-            ASSESS_PORT=$2
+            print_info "Downloading and setting up the required JRE for $OS_ARCH..."
+            if ! download_jre "$(echo "$OS_ARCH" | cut -d'/' -f2)" "$(echo "$OS_ARCH" | cut -d'/' -f1)"; then
+                print_error "Failed to download the required JRE for $OS_ARCH."
+                exit 1
+            fi
+            JAVA_HOME="$SCRIPT_DIR/jre/$OS_ARCH"
+            export JAVA_HOME
         fi
-    elif [[ $COMMAND == "protect" ]]; then
-        if [[ -z "$2" ]]; then
-            PROTECT_PORT=8082
+        if [[ "$OS_ARCH" == "mac/x64" || "$OS_ARCH" == "mac/aarch64" ]]; then
+            JAVA_BIN="$JAVA_HOME/Contents/Home/bin/java"
         else
-            PROTECT_PORT=$2
+            JAVA_BIN="$JAVA_HOME/bin/java"
         fi
-    elif [[ $COMMAND == "all" ]]; then
-        if [[ -z "$2" ]]; then
+        export JAVA_BIN
+        # check_downloaded_jre_version "$OS_ARCH"
+    else
+        JAVA_BIN=$(command -v java)
+        export JAVA_BIN
+    fi
+
+    # Check configuration file
+    check_config_file
+
+    # Start the application based on command-line arguments
+    if [[ -z "$1" ]]; then
+        COMMAND="all"
+        if [ -z "$2" ]; then
             ASSESS_PORT=8080
             PROTECT_PORT=8082
         else
             ASSESS_PORT=$2
             PROTECT_PORT=$3
         fi
+    else
+        COMMAND="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+        if [[ $COMMAND == "assess" ]]; then
+            if [[ -z "$2" ]]; then
+                ASSESS_PORT=8080
+            else
+                ASSESS_PORT=$2
+            fi
+        elif [[ $COMMAND == "protect" ]]; then
+            if [[ -z "$2" ]]; then
+                PROTECT_PORT=8082
+            else
+                PROTECT_PORT=$2
+            fi
+        elif [[ $COMMAND == "all" ]]; then
+            if [[ -z "$2" ]]; then
+                ASSESS_PORT=8080
+                PROTECT_PORT=8082
+            else
+                ASSESS_PORT=$2
+                PROTECT_PORT=$3
+            fi
+        fi
     fi
-fi
-echo "Command: $COMMAND"
-echo "Assess Port: $ASSESS_PORT"
-echo "Protect Port: $PROTECT_PORT"
 
-# If the command is not provided
-case "$COMMAND" in
-"assess")
-    ASSESS_ENABLE=true
-    start_application "$ASSESS_PORT" "DEVELOPMENT"
-    ;;
-"protect")
-    PROTECT_ENABLE=true
-    start_application "$PROTECT_PORT" "PRODUCTION"
-    ;;
-"all")
-    ASSESS_ENABLE=true
-    start_application "$ASSESS_PORT" "DEVELOPMENT"
-    ASSESS_ENABLE=false
-    PROTECT_ENABLE=true
-    start_application "$PROTECT_PORT" "PRODUCTION"
-    ;;
-*)
-    echo "Usage: $0 {assess|protect|all} [ASSESS_PORT] [PROTECT_PORT]"
-    exit 1
-    ;;
-esac
+    # If the command is not provided
+    case "$COMMAND" in
+    "assess")
+        ASSESS_ENABLE=true
+        start_application "$ASSESS_PORT" "DEVELOPMENT"
+        ;;
+    "protect")
+        PROTECT_ENABLE=true
+        start_application "$PROTECT_PORT" "PRODUCTION"
+        ;;
+    "all")
+        ASSESS_ENABLE=true
+        start_application "$ASSESS_PORT" "DEVELOPMENT"
+        ASSESS_ENABLE=false
+        PROTECT_ENABLE=true
+        start_application "$PROTECT_PORT" "PRODUCTION"
+        ;;
+    *)
+        print_error "Usage: $0 {assess|protect|all} [ASSESS_PORT] [PROTECT_PORT]"
+        exit 1
+        ;;
+    esac
+}
+
+main "$@"

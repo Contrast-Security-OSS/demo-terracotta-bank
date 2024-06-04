@@ -1,19 +1,47 @@
 #!/bin/bash
 
+# Text Colors
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+WHITE=$(tput setaf 7)
+GREY=$(tput setaf 8)
+RESET=$(tput sgr0)
+
+print_success() {
+    echo -e "${GREEN}SUCCESS: $1${RESET}"
+}
+
+print_error() {
+    echo -e "${RED}ERROR: $1${RESET}"
+}
+
+print_warning() {
+    echo -e "${YELLOW}WARNING: $1${RESET}"
+}
+
+print_info() {
+    echo -e "${WHITE}INFO: $1${RESET}"
+}
+
+print_debug() {
+    echo -e "${GREY}DEBUG: $1${RESET}"
+}
+
 # Function to stop processes listening on a port
 stop_process_on_port() {
     PIDS=$(lsof -t -i:"$1")
 
     if [ -z "$PIDS" ]; then
-        echo "No process found on port $1."
+        print_error "No process found on port $1."
         return
     fi
 
     for PID in $PIDS; do
-        if kill "$PID" > /dev/null 2>&1; then
-            echo "Stopped process $PID on port $1."
+        if kill "$PID" >/dev/null 2>&1; then
+            print_success "Stopped process $PID on port $1."
         else
-            echo "Failed to stop process $PID on port $1."
+            print_error "Failed to stop process $PID on port $1."
         fi
     done
 }
@@ -52,9 +80,6 @@ else
         fi
     fi
 fi
-echo "Command: $COMMAND"
-echo "Assess Port: $ASSESS_PORT"
-echo "Protect Port: $PROTECT_PORT"
 
 # If the command is not provided
 case "$COMMAND" in
@@ -69,7 +94,7 @@ case "$COMMAND" in
     stop_process_on_port "$PROTECT_PORT" "PRODUCTION"
     ;;
 *)
-    echo "Usage: $0 {assess|protect|all} [ASSESS_PORT] [PROTECT_PORT]"
+    print_error "Usage: $0 {assess|protect|all} [ASSESS_PORT] [PROTECT_PORT]"
     exit 1
     ;;
 esac
