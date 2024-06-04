@@ -121,7 +121,7 @@ jobs:
           chmod u+x scripts/*.sh
           cp scripts/start.sh terracotta-bank/
           cp scripts/stop.sh terracotta-bank/
-          cp -R docs/ terracotta-bank/docs/
+          cp docs/* terracotta-bank/docs/
           zip -r terracotta-release.zip terracotta-bank/
           
       - name: Upload Terracotta Bank Release Package
