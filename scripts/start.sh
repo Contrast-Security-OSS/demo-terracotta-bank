@@ -315,58 +315,32 @@ main() {
 
     # Start the application based on command-line arguments
     if [[ -z "$1" ]]; then
-        COMMAND="all"
-        if [ -z "$2" ]; then
-            ASSESS_PORT=8080
-            PROTECT_PORT=8082
-        else
-            ASSESS_PORT=$2
-            PROTECT_PORT=$3
-        fi
+        COMMAND="both"
+        PORT=${2:-8080}
     else
         COMMAND="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
-        if [[ $COMMAND == "assess" ]]; then
-            if [[ -z "$2" ]]; then
-                ASSESS_PORT=8080
-            else
-                ASSESS_PORT=$2
-            fi
-        elif [[ $COMMAND == "protect" ]]; then
-            if [[ -z "$2" ]]; then
-                PROTECT_PORT=8082
-            else
-                PROTECT_PORT=$2
-            fi
-        elif [[ $COMMAND == "all" ]]; then
-            if [[ -z "$2" ]]; then
-                ASSESS_PORT=8080
-                PROTECT_PORT=8082
-            else
-                ASSESS_PORT=$2
-                PROTECT_PORT=$3
-            fi
-        fi
+        PORT=${2:-8080}
     fi
 
     # If the command is not provided
     case "$COMMAND" in
     "assess")
         ASSESS_ENABLE=true
-        start_application "$ASSESS_PORT" "DEVELOPMENT"
+        PROTECT_ENABLE=false
+        start_application "$PORT" "DEVELOPMENT"
         ;;
     "protect")
-        PROTECT_ENABLE=true
-        start_application "$PROTECT_PORT" "PRODUCTION"
-        ;;
-    "all")
-        ASSESS_ENABLE=true
-        start_application "$ASSESS_PORT" "DEVELOPMENT"
         ASSESS_ENABLE=false
         PROTECT_ENABLE=true
-        start_application "$PROTECT_PORT" "PRODUCTION"
+        start_application "$PORT" "PRODUCTION"
+        ;;
+    "both")
+        ASSESS_ENABLE=true
+        PROTECT_ENABLE=true
+        start_application "$PORT" "PRODUCTION"
         ;;
     *)
-        print_error "Usage: $0 {assess|protect|all} [ASSESS_PORT] [PROTECT_PORT]"
+        print_error "Usage: $0 {assess|protect|both} [PORT]"
         exit 1
         ;;
     esac
