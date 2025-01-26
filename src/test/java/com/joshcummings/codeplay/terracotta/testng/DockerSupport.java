@@ -41,9 +41,10 @@ public class DockerSupport {
 
 	public void startContainer() throws Exception {
 		CreateContainerCmd cmd = docker.createContainerCmd("terracotta-bank");
-		cmd.withPortBindings(PortBinding.parse("8080:8080"))
-			.withNetworkMode("host")
-			.withName(CONTAINER_NAME);
+		cmd.getHostConfig()
+			.withPortBindings(PortBinding.parse("8080:8080"))
+			.withNetworkMode("host");
+		cmd.withName(CONTAINER_NAME);
 		cmd.exec();
 		docker.startContainerCmd(CONTAINER_NAME).exec();
 	}
@@ -55,9 +56,10 @@ public class DockerSupport {
 	
 	public void startClamav() throws Exception {
 		CreateContainerCmd cmd = docker.createContainerCmd("mkodockx/docker-clamav");
-		cmd.withPortBindings(PortBinding.parse("3310:3310"))
-			.withNetworkMode("host")
-			.withName("clamav");
+		cmd.getHostConfig()
+			.withPortBindings(PortBinding.parse("3310:3310"))
+			.withNetworkMode("host");
+		cmd.withName("clamav");
 		cmd.exec();
 		docker.startContainerCmd("clamav").exec();
 	}

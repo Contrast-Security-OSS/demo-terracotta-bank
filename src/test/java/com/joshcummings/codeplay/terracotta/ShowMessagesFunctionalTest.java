@@ -15,13 +15,8 @@
  */
 package com.joshcummings.codeplay.terracotta;
 
-import org.openqa.selenium.Alert;
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoAlertPresentException;
-import org.openqa.selenium.UnhandledAlertException;
 import org.testng.Assert;
 import org.testng.annotations.*;
-import java.io.*;
 
 public class ShowMessagesFunctionalTest extends AbstractEmbeddedTomcatSeleniumTest {
     @BeforeClass(alwaysRun = true)

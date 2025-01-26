@@ -16,16 +16,12 @@
 package com.joshcummings.codeplay.terracotta;
 
 import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.FluentWait;
-import org.openqa.selenium.support.ui.WebDriverWait;
+
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.time.Duration;
-
-import static org.apache.http.client.methods.RequestBuilder.post;
 
 public class AdminLookupCheckFunctionalTest extends AbstractEmbeddedTomcatSeleniumTest {
 	@BeforeClass(alwaysRun=true)

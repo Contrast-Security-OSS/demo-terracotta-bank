@@ -91,6 +91,8 @@ gradle-app.setting
 ### Contrast-Specific
 contrast_security.yaml
 contrast.jar
+contrast.env
+contrast.sarif
 
 ### Cache
 **/cache/
@@ -100,3 +102,9 @@ contrast.jar
 
 ### Package Files
 jre/
+
+### Gitleaks
+gitleaks.toml
+
+### VSCode
+.vscode/

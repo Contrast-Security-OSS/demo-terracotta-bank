@@ -16,7 +16,6 @@
 package com.joshcummings.codeplay.terracotta.servlet;
 
 import com.joshcummings.codeplay.terracotta.service.CheckService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

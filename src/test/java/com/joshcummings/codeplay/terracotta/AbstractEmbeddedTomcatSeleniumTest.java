@@ -16,10 +16,9 @@
 package com.joshcummings.codeplay.terracotta;
 
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-import com.joshcummings.codeplay.terracotta.testng.HttpSupport;
+import com.joshcummings.codeplay.terracotta.http.HttpSupport;
 import com.joshcummings.codeplay.terracotta.testng.ProxySupport;
 import com.joshcummings.codeplay.terracotta.testng.SeleniumSupport;
 import com.joshcummings.codeplay.terracotta.testng.TestConstants;
@@ -86,7 +85,7 @@ public class AbstractEmbeddedTomcatSeleniumTest extends AbstractEmbeddedTomcatTe
 		driver.findElement(By.name("username")).sendKeys(username);
         driver.findElement(By.name("password")).sendKeys(password);
         driver.findElement(By.name("login")).submit();
-        FluentWait<WebDriver> wait = new WebDriverWait(driver, 2).pollingEvery(Duration.ofMillis(100));
+        FluentWait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(2)).pollingEvery(Duration.ofMillis(100));
         wait.until((Function<WebDriver, Boolean>)driver -> driver.findElement(By.id("service")) != null);
         return driver.getPageSource();
 	}
@@ -96,7 +95,7 @@ public class AbstractEmbeddedTomcatSeleniumTest extends AbstractEmbeddedTomcatTe
 		driver.findElement(By.name("username")).sendKeys(username);
         driver.findElement(By.name("password")).sendKeys(password);
         driver.findElement(By.name("login")).submit();
-        FluentWait<WebDriver> wait = new WebDriverWait(driver, 2).pollingEvery(Duration.ofMillis(100));
+        FluentWait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(2)).pollingEvery(Duration.ofMillis(100));
         wait.until(driver -> driver.findElement(By.id("service")) != null);
 	}
 	

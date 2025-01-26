@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 /**
@@ -81,10 +80,6 @@ public class BankTransferServlet extends HttpServlet {
 		this.objectMapper.writeValue(response.getWriter(), errors);
 	}
 
-	private Supplier<IllegalArgumentException> notFound(String parameter) {
-		return () -> new IllegalArgumentException("Couldn't find required parameter " + parameter);
-	}
-
 	private BigDecimal parseAsDollar(String param) {
 		if (IS_DOLLAR.matcher(param).matches()) {
 			return new BigDecimal(param);
@@ -96,7 +91,7 @@ public class BankTransferServlet extends HttpServlet {
 	private <E> Optional<E> tryParse(String possibleInteger, Function<String, E> parser, List<String> errors) {
 		try {
 			return Optional.of(parser.apply(possibleInteger));
-		} catch ( Exception e ) {
+		} catch (Exception e) {
 			errors.add(possibleInteger + " is invalid");
 			return Optional.empty();
 		}

@@ -17,7 +17,6 @@ package com.joshcummings.codeplay.terracotta;
 
 import org.openqa.selenium.By;
 import org.testng.annotations.*;
-import java.io.*;
 
 public class LookupCheckFunctionalTest extends AbstractEmbeddedTomcatSeleniumTest {
     @BeforeClass(alwaysRun = true)

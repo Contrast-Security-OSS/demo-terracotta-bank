@@ -29,7 +29,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -93,7 +95,15 @@ public class RequestLogFilter implements Filter {
 
 		String action = request.getRequestURI() +
 			Optional.ofNullable(request.getQueryString())
-				.map(query -> "?" + URLDecoder.decode(query)).orElse("");
+				.map(query -> {
+					try {
+						return "?" + URLDecoder.decode(query, StandardCharsets.UTF_8.name());
+					} catch (UnsupportedEncodingException e) {
+						log.error("Failed to decode query string", e);
+						return "?" + query; // Return undecoded query string as fallback
+					}
+				})
+				.orElse("");
 
 		attributes.put("action", action);
 		attributes.put("result", response.getStatus());

@@ -26,20 +26,20 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@ec92e829475ac0c2315ea8f9eced72db85bb337a # v3.0.0
 
-      - name: Build WAR with Gradle
+      - name: Build JAR with Gradle
         run: ./gradlew clean build -x test
 
-      - name: Copy WAR
+      - name: Copy JAR
         run: |
           TERRACOTTA_BANK_VERSION=0.0.1-SNAPSHOT
-          cp build/libs/terracotta-bank-servlet-${TERRACOTTA_BANK_VERSION}.war terracotta.war
+          cp build/libs/terracotta-bank-servlet-${TERRACOTTA_BANK_VERSION}.jar terracotta.jar
       
       - name: Upload Terracotta Bank Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: terracotta-bank-artifacts
           path: |
-            terracotta.war
+            terracotta.jar
             scripts/
             docs/
 
@@ -51,7 +51,7 @@ jobs:
       - name: Install Dependencies
         run: sudo apt-get install -y libxml2-utils gnupg2
 
-      - name: Download Terracotta Bank WAR and Scripts
+      - name: Download Terracotta Bank JAR and Scripts
         uses: actions/download-artifact@v4
         with:
           name: terracotta-bank-artifacts
@@ -116,7 +116,7 @@ jobs:
         run: |
           LATEST_AGENT_RELEASE_VERSION=${{ steps.fetch-latest-contrast-agent-version.outputs.latest_agent_release_version }}
           mkdir -p terracotta-bank/docs
-          cp terracotta.war terracotta-bank/terracotta.war
+          cp terracotta.jar terracotta-bank/terracotta.jar
           cp contrast-agent.jar terracotta-bank/
           chmod u+x scripts/*.sh
           cp scripts/start.sh terracotta-bank/

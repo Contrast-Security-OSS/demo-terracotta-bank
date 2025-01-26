@@ -20,30 +20,10 @@ import com.joshcummings.codeplay.terracotta.app.DecryptionFilter;
 import com.joshcummings.codeplay.terracotta.app.RequestLogFilter;
 import com.joshcummings.codeplay.terracotta.app.UserFilter;
 import com.joshcummings.codeplay.terracotta.metrics.RequestClassificationFilter;
-import com.joshcummings.codeplay.terracotta.service.AccountService;
-import com.joshcummings.codeplay.terracotta.service.CheckService;
-import com.joshcummings.codeplay.terracotta.service.ClientService;
-import com.joshcummings.codeplay.terracotta.service.EmailService;
-import com.joshcummings.codeplay.terracotta.service.MessageService;
-import com.joshcummings.codeplay.terracotta.service.UserService;
-import com.joshcummings.codeplay.terracotta.servlet.AccountServlet;
-import com.joshcummings.codeplay.terracotta.servlet.AdminLoginServlet;
-import com.joshcummings.codeplay.terracotta.servlet.BankTransferServlet;
-import com.joshcummings.codeplay.terracotta.servlet.ChangePasswordServlet;
-import com.joshcummings.codeplay.terracotta.servlet.CheckLookupServlet;
-import com.joshcummings.codeplay.terracotta.servlet.ContactUsServlet;
-import com.joshcummings.codeplay.terracotta.servlet.EmployeeLoginServlet;
-import com.joshcummings.codeplay.terracotta.servlet.ForgotPasswordServlet;
-import com.joshcummings.codeplay.terracotta.servlet.LoginServlet;
-import com.joshcummings.codeplay.terracotta.servlet.LogoutServlet;
-import com.joshcummings.codeplay.terracotta.servlet.MakeDepositServlet;
-import com.joshcummings.codeplay.terracotta.servlet.MessagesServlet;
-import com.joshcummings.codeplay.terracotta.servlet.RegisterServlet;
-import com.joshcummings.codeplay.terracotta.servlet.SiteStatisticsServlet;
-import com.joshcummings.codeplay.terracotta.servlet.TransferMoneyServlet;
-import com.joshcummings.codeplay.terracotta.servlet.ErrorServlet;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
+import com.joshcummings.codeplay.terracotta.service.*;
+import com.joshcummings.codeplay.terracotta.servlet.*;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -51,10 +31,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.Servlet;
 import javax.servlet.annotation.MultipartConfig;
@@ -66,130 +45,129 @@ import static javax.servlet.SessionTrackingMode.COOKIE;
 import static javax.servlet.SessionTrackingMode.URL;
 
 @Configuration
-public class WebConfiguration extends WebMvcConfigurerAdapter {
-	@Bean
-	ServletContextInitializer urlSessionTracking() {
-		return servletContext ->
-				servletContext.setSessionTrackingModes(
-						EnumSet.of(URL, COOKIE));
-	}
+public class WebConfiguration implements WebMvcConfigurer {
 
 	@Bean
-	public EmbeddedServletContainerCustomizer servletContainerCustomizer() {
+	public WebServerFactoryCustomizer<TomcatServletWebServerFactory> containerCustomizer() {
 		return container -> {
-			if (container instanceof TomcatEmbeddedServletContainerFactory) {
-				((TomcatEmbeddedServletContainerFactory) container).addContextCustomizers(
-						tomcat -> tomcat.setUseHttpOnly(false));
-			}
+			container.addContextCustomizers(
+					tomcat -> tomcat.setUseHttpOnly(false));
 		};
 	}
 
 	@Bean
-	public FilterRegistrationBean decryptionFilter() {
-		FilterRegistrationBean bean = new FilterRegistrationBean(
-				new DecryptionFilter()
-		);
+	ServletContextInitializer urlSessionTracking() {
+		return servletContext -> servletContext.setSessionTrackingModes(
+				EnumSet.of(URL, COOKIE));
+	}
+
+	@Bean
+	public FilterRegistrationBean<DecryptionFilter> decryptionFilter() {
+		FilterRegistrationBean<DecryptionFilter> bean = new FilterRegistrationBean<>();
+		bean.setFilter(new DecryptionFilter());
 		bean.setOrder(-2);
 		bean.setDispatcherTypes(EnumSet.of(REQUEST));
 		return bean;
 	}
 
 	@Bean
-	public FilterRegistrationBean contentFilter() {
-		FilterRegistrationBean bean = new FilterRegistrationBean(
-				new ContentParsingFilter()
-		);
+	public FilterRegistrationBean<ContentParsingFilter> contentFilter() {
+		FilterRegistrationBean<ContentParsingFilter> bean = new FilterRegistrationBean<>();
+		bean.setFilter(new ContentParsingFilter());
 		bean.setOrder(-1);
 		bean.setDispatcherTypes(EnumSet.of(REQUEST));
 		return bean;
 	}
 
 	@Bean
-	public FilterRegistrationBean userFilter(AccountService accountService, UserService userService) {
-		FilterRegistrationBean bean = new FilterRegistrationBean(
-				new UserFilter(accountService, userService));
+	public FilterRegistrationBean<UserFilter> userFilter(AccountService accountService, UserService userService) {
+		FilterRegistrationBean<UserFilter> bean = new FilterRegistrationBean<>();
+		bean.setFilter(new UserFilter(accountService, userService));
 		bean.setOrder(0);
 		return bean;
 	}
 
 	@Bean
-	public FilterRegistrationBean requestFilter() {
-		FilterRegistrationBean bean = new FilterRegistrationBean(
-				new RequestLogFilter());
+	public FilterRegistrationBean<RequestLogFilter> requestFilter() {
+		FilterRegistrationBean<RequestLogFilter> bean = new FilterRegistrationBean<>();
+		bean.setFilter(new RequestLogFilter());
 		bean.setOrder(1);
 		return bean;
 	}
 
 	@Bean
-	public FilterRegistrationBean requestClassificationFilter() {
-		FilterRegistrationBean bean = new FilterRegistrationBean();
+	public FilterRegistrationBean<RequestClassificationFilter> requestClassificationFilter() {
+		FilterRegistrationBean<RequestClassificationFilter> bean = new FilterRegistrationBean<>();
 		bean.setFilter(new RequestClassificationFilter());
 		bean.setDispatcherTypes(REQUEST, DispatcherType.FORWARD, DispatcherType.ERROR);
 		return bean;
 	}
 
 	@Bean
-	public ServletRegistrationBean errorServelet() {
+	public ServletRegistrationBean<ErrorServlet> errorServlet() {
 		return this.servlet(new ErrorServlet(), "/error");
 	}
 
 	@Bean
-	public ServletRegistrationBean accountsServlet(AccountService accountService) {
+	public ServletRegistrationBean<AccountServlet> accountsServlet(AccountService accountService) {
 		return this.servlet(new AccountServlet(accountService), "/showAccounts");
 	}
 
 	@Bean
-	public ServletRegistrationBean adminLoginServlet(AccountService accountService, UserService userService) {
+	public ServletRegistrationBean<AdminLoginServlet> adminLoginServlet(AccountService accountService,
+			UserService userService) {
 		return this.servlet(new AdminLoginServlet(), "/adminLogin");
 	}
 
 	@Bean
-	public ServletRegistrationBean bankTransferServlet(AccountService accountService, ClientService clientService) {
+	public ServletRegistrationBean<BankTransferServlet> bankTransferServlet(AccountService accountService,
+			ClientService clientService) {
 		return this.servlet(new BankTransferServlet(accountService, clientService), "/bankTransfer");
 	}
 
 	@Bean
-	public ServletRegistrationBean changePasswordServlet(UserService userService) {
+	public ServletRegistrationBean<ChangePasswordServlet> changePasswordServlet(UserService userService) {
 		return this.servlet(new ChangePasswordServlet(userService), "/changePassword");
 	}
 
 	@Bean
-	public ServletRegistrationBean checkLookupServlet(CheckService checkService) {
+	public ServletRegistrationBean<CheckLookupServlet> checkLookupServlet(CheckService checkService) {
 		return this.servlet(new CheckLookupServlet(checkService), "/checkLookup");
 	}
 
 	@Bean
-	public ServletRegistrationBean contactUsServlet(MessageService messageService) {
+	public ServletRegistrationBean<ContactUsServlet> contactUsServlet(MessageService messageService) {
 		return this.servlet(new ContactUsServlet(messageService), "/contactus");
 	}
 
 	@Bean
-	public ServletRegistrationBean employeeLoginServlet(UserService userService) {
+	public ServletRegistrationBean<EmployeeLoginServlet> employeeLoginServlet(UserService userService) {
 		return this.servlet(new EmployeeLoginServlet(userService), "/employeeLogin");
 	}
 
 	@Bean
-	public ServletRegistrationBean forgotPasswordServlet(UserService userService) {
+	public ServletRegistrationBean<ForgotPasswordServlet> forgotPasswordServlet(UserService userService) {
 		return this.servlet(new ForgotPasswordServlet(userService), "/forgotPassword");
 	}
 
 	@Bean
-	public ServletRegistrationBean loginServlet(AccountService accountService, UserService userService)  {
+	public ServletRegistrationBean<LoginServlet> loginServlet(AccountService accountService, UserService userService) {
 		return this.servlet(new LoginServlet(accountService, userService), "/login");
 	}
 
 	@Bean
-	public ServletRegistrationBean logoutServlet() {
+	public ServletRegistrationBean<LogoutServlet> logoutServlet() {
 		return this.servlet(new LogoutServlet(), "/logout");
 	}
 
 	@Bean
-	public ServletRegistrationBean makeDepositServlet(AccountService accountService, CheckService checkService) {
-		ServletRegistrationBean bean = this.servlet(
+	public ServletRegistrationBean<MakeDepositServlet> makeDepositServlet(AccountService accountService,
+			CheckService checkService) {
+		ServletRegistrationBean<MakeDepositServlet> bean = this.servlet(
 				new MakeDepositServlet(accountService, checkService), "/makeDeposit");
 
-		MultipartConfigElement element =
-				new MultipartConfigElement(MakeDepositServlet.class.getAnnotation(MultipartConfig.class));
+		MultipartConfigElement element = new MultipartConfigElement(
+				MakeDepositServlet.class.getAnnotation(MultipartConfig.class));
 
 		bean.setMultipartConfig(element);
 
@@ -197,33 +175,35 @@ public class WebConfiguration extends WebMvcConfigurerAdapter {
 	}
 
 	@Bean
-	public ServletRegistrationBean messagesServlet(MessageService messageService) {
+	public ServletRegistrationBean<MessagesServlet> messagesServlet(MessageService messageService) {
 		return this.servlet(new MessagesServlet(messageService), "/showMessages");
 	}
 
 	@Bean
-	public ServletRegistrationBean registerServlet(AccountService accountService, UserService userService) {
+	public ServletRegistrationBean<RegisterServlet> registerServlet(AccountService accountService,
+			UserService userService) {
 		return this.servlet(new RegisterServlet(accountService, userService), "/register");
 	}
 
 	@Bean
-	public ServletRegistrationBean siteStatisticsServlet(AccountService accountService, UserService userService) {
+	public ServletRegistrationBean<SiteStatisticsServlet> siteStatisticsServlet(AccountService accountService,
+			UserService userService) {
 		return this.servlet(new SiteStatisticsServlet(accountService, userService), "/siteStatistics");
 	}
 
 	@Bean
-	public ServletRegistrationBean transferMoneyServlet(AccountService accountService) {
+	public ServletRegistrationBean<TransferMoneyServlet> transferMoneyServlet(AccountService accountService) {
 		return this.servlet(new TransferMoneyServlet(accountService), "/transferMoney");
 	}
 
 	@Override
 	public void addViewControllers(ViewControllerRegistry registry) {
-		registry.addViewController( "/" ).setViewName( "forward:/index.jsp" );
-		registry.setOrder( Ordered.HIGHEST_PRECEDENCE );
+		registry.addViewController("/").setViewName("forward:/index.jsp");
+		registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
 	}
 
-	private ServletRegistrationBean servlet(Servlet servlet, String urlMapping) {
-		ServletRegistrationBean bean = new ServletRegistrationBean();
+	private <T extends Servlet> ServletRegistrationBean<T> servlet(T servlet, String urlMapping) {
+		ServletRegistrationBean<T> bean = new ServletRegistrationBean<>();
 		bean.setServlet(servlet);
 		bean.setUrlMappings(Arrays.asList(urlMapping));
 		return bean;

@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -54,8 +53,12 @@ public class AccountServlet extends HttpServlet {
 			if (StringUtils.hasText(request.getParameter("showAccountsSearch"))) {
 				String filter = request.getParameter("showAccountsSearch");
 				Expression expression = this.parser.parseExpression("#this.?[" + filter + "]");
-				accounts = new LinkedHashSet<>(
-						(List<Account>) expression.getValue(new StandardEvaluationContext(accounts)));
+				Object value = expression.getValue(new StandardEvaluationContext(accounts));
+				if (value instanceof List<?>) {
+					@SuppressWarnings("unchecked")
+					List<Account> filteredAccounts = (List<Account>) value;
+					accounts = new LinkedHashSet<>(filteredAccounts);
+				}
 			}
 			request.setAttribute("accounts", accounts);
 			request.getRequestDispatcher("/WEB-INF/accounts.jsp").forward(request, response);

@@ -21,7 +21,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 
 public class ChangePasswordFunctionalTest extends AbstractEmbeddedTomcatSeleniumTest {
 	@BeforeClass(alwaysRun = true)

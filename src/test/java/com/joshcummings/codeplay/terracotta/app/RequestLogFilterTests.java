@@ -16,7 +16,6 @@
 package com.joshcummings.codeplay.terracotta.app;
 
 import com.joshcummings.codeplay.terracotta.model.User;
-import org.mockito.Mock;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
