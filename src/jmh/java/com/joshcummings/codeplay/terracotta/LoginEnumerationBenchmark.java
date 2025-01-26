@@ -15,7 +15,6 @@
  */
 package com.joshcummings.codeplay.terracotta;
 
-import com.joshcummings.codeplay.terracotta.testng.HttpSupport;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.message.BasicNameValuePair;

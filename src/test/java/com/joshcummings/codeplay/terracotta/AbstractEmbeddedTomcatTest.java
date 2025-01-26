@@ -1,22 +1,9 @@
 package com.joshcummings.codeplay.terracotta;
 
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-
 import com.joshcummings.codeplay.terracotta.testng.DockerSupport;
 import com.joshcummings.codeplay.terracotta.testng.HttpSupport;
-import com.joshcummings.codeplay.terracotta.testng.ProxySupport;
-import com.joshcummings.codeplay.terracotta.testng.SeleniumSupport;
-import com.joshcummings.codeplay.terracotta.testng.TestConstants;
 import com.joshcummings.codeplay.terracotta.testng.TomcatSupport;
-import org.openqa.selenium.Alert;
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoAlertPresentException;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.FluentWait;
-import org.openqa.selenium.support.ui.WebDriverWait;
+
 import org.testng.ITestContext;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;

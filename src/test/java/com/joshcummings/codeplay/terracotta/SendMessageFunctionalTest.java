@@ -15,7 +15,6 @@
  */
 package com.joshcummings.codeplay.terracotta;
 
-import org.apache.http.client.methods.RequestBuilder;
 import org.openqa.selenium.By;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;

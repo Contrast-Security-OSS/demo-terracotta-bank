@@ -22,7 +22,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Function;
 
 public abstract class ServiceSupport {
 	private static final String DATABASE_URL = "jdbc:hsqldb:mem:db";

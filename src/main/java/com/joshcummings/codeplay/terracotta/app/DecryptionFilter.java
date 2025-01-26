@@ -17,7 +17,6 @@ package com.joshcummings.codeplay.terracotta.app;
 
 import org.springframework.util.StreamUtils;
 
-import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.Filter;

@@ -15,7 +15,6 @@
  */
 package com.joshcummings.codeplay.terracotta;
 
-import com.joshcummings.codeplay.terracotta.testng.TestConstants;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;

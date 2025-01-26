@@ -16,7 +16,6 @@
 package com.joshcummings.codeplay.terracotta;
 
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import com.joshcummings.codeplay.terracotta.testng.HttpSupport;

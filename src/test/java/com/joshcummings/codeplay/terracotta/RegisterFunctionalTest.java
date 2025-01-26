@@ -17,7 +17,6 @@ package com.joshcummings.codeplay.terracotta;
 
 import org.apache.http.client.methods.RequestBuilder;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 public class RegisterFunctionalTest extends AbstractEmbeddedTomcatSeleniumTest {

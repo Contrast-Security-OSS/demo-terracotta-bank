@@ -18,12 +18,10 @@ package com.joshcummings.codeplay.terracotta.service;
 import com.joshcummings.codeplay.terracotta.model.Client;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
 import java.security.Key;
 import java.security.KeyFactory;
-import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Set;

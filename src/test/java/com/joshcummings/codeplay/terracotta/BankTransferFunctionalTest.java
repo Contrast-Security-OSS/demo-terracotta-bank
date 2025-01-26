@@ -16,37 +16,20 @@
 package com.joshcummings.codeplay.terracotta;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.joshcummings.codeplay.terracotta.model.Account;
 import com.joshcummings.codeplay.terracotta.model.Client;
 import com.joshcummings.codeplay.terracotta.service.AccountService;
-import com.joshcummings.codeplay.terracotta.service.ClientService;
-import com.joshcummings.codeplay.terracotta.testng.HttpSupport;
-import com.joshcummings.codeplay.terracotta.testng.TomcatSupport;
-import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.entity.BasicHttpEntity;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.net.URI;
-import java.nio.ByteBuffer;
 import java.security.KeyFactory;
-import java.security.Signature;
-import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.time.Instant;
 import java.util.Base64;
-import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;

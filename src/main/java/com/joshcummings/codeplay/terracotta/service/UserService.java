@@ -18,7 +18,6 @@ package com.joshcummings.codeplay.terracotta.service;
 import com.joshcummings.codeplay.terracotta.model.User;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
 import java.util.Set;
 
 /**
