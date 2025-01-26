@@ -28,7 +28,7 @@ public class InMemoryAppender extends ConsoleAppender<ILoggingEvent> {
 	@Override
 	public void doAppend(ILoggingEvent eventObject) {
 		byte[] b = this.encoder.encode(eventObject);
-		this.log.offer(new String(b));
+		InMemoryAppender.log.offer(new String(b));
 	}
 
 	public static List<String> take(int count) {
