@@ -21,7 +21,6 @@ plugins {
     id 'idea'
     id 'org.springframework.boot' version "${springBootVersion}"
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'war'
     id 'com.google.cloud.tools.jib' version '3.2.1'
 }
 
@@ -78,13 +77,13 @@ bootRun {
 
 jib {
     from {
-        image = 'tomcat:9.0-jre8-alpine'
+        image = 'eclipse-temurin:8-jre-alpine'
     }
     to {
         image = 'terracotta-bank:1.0'
     }
     container {
-        appRoot = '/usr/local/tomcat/webapps/ROOT'
+        appRoot = '/app'
         environment = [JAVA_OPTS: '-Xmx1G -Djdk.xml.entityExpansionLimit=0']
     }
 }
