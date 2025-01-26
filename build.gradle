@@ -29,7 +29,13 @@ apply plugin: 'me.champeau.gradle.jmh'
 
 group = 'com.joshcummings'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.8
+
+// Replace sourceCompatibility with toolchain
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
 
 repositories {
     mavenCentral()
@@ -43,14 +49,36 @@ ext {
     revision = git.head().id
 }
 
+// Define source sets first
+sourceSets {
+    vulnerabilityTest {
+        java {
+            srcDir layout.projectDirectory.dir('src/vulnerability-test/java')
+        }
+        resources {
+            srcDir layout.projectDirectory.dir('src/vulnerability-test/resources')
+        }
+        compileClasspath += sourceSets.main.output + sourceSets.test.output
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+// Then define configurations
+configurations {
+    vulnerabilityTestImplementation.extendsFrom testImplementation
+    vulnerabilityTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
 bootRun {
     systemProperty "jdk.xml.entityExpansionLimit", "0"
-    jvmArgs = ["-javaagent:contrast.jar", "-Dcontrast.config.path=contrast_security.yaml", "-Dcontrast.application.session_metadata=branchName=${git.branch.getCurrent().getName()}"]
+    jvmArgs = ["-javaagent:contrast.jar", 
+                "-Dcontrast.config.path=contrast_security.yaml", 
+                "-Dcontrast.application.session_metadata=branchName=${git.branch.getCurrent().getName()}"]
 }
 
 jib {
     from {
-        image = 'tomcat:9.0-jre8-alpine'  // Updated Tomcat version
+        image = 'tomcat:9.0-jre8-alpine'
     }
     to {
         image = 'terracotta-bank:1.0'
@@ -61,35 +89,20 @@ jib {
     }
 }
 
-test {
+tasks.named('test') {
     useTestNG()
     group = 'Verification'
     description = 'Runs functional tests'
     dependsOn 'jar'
-    jvmArgs = ["-javaagent:${project.projectDir}/contrast.jar", "-Dcontrast.config.path=contrast_security.yaml", "-Dcontrast.server.environment=qa", "-Dcontrast.server.name=gradle"]
+    jvmArgs = ["-javaagent:${layout.projectDirectory}/contrast.jar", 
+                "-Dcontrast.config.path=contrast_security.yaml",
+                "-Dcontrast.server.environment=qa",
+                "-Dcontrast.server.name=gradle"]
 }
 
 jmh {
     includeTests = true
     duplicateClassesStrategy = 'warn'
-}
-
-configurations {
-    vulnerabilityTestImplementation.extendsFrom testImplementation
-    vulnerabilityTestRuntimeOnly.extendsFrom testRuntimeOnly
-}
-
-sourceSets {
-    vulnerabilityTest {
-        java {
-            srcDir project.file('src/vulnerability-test/java')
-        }
-        resources {
-            srcDir project.file('src/vulnerability-test/resources')
-        }
-        compileClasspath += sourceSets.main.output + sourceSets.test.output
-        runtimeClasspath += output + compileClasspath
-    }
 }
 
 tasks.register('vulnerabilityTest', Test) {
@@ -99,22 +112,23 @@ tasks.register('vulnerabilityTest', Test) {
     dependsOn 'jar'
     testClassesDirs = sourceSets.vulnerabilityTest.output.classesDirs
     classpath = sourceSets.vulnerabilityTest.runtimeClasspath
-    jvmArgs = ["-javaagent:contrast.jar","-Dcontrast.server.name=gradle", "-Dcontrast.env=qa"]
+    jvmArgs = ["-javaagent:contrast.jar",
+                "-Dcontrast.server.name=gradle",
+                "-Dcontrast.env=qa"]
 }
 
-tasks.withType(JavaCompile) {
-    options.compilerArgs << "-Xlint:deprecation"
-    options.compilerArgs << "-Xlint:unchecked"
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ["-Xlint:deprecation", "-Xlint:unchecked"]
 }
 
 idea {
     module {
-        testSourceDirs += sourceSets.jmh.java.srcDirs
-        testSourceDirs += sourceSets.vulnerabilityTest.java.srcDirs
+        testSourceDirs.addAll(sourceSets.jmh.java.srcDirs)
+        testSourceDirs.addAll(sourceSets.vulnerabilityTest.java.srcDirs)
     }
 }
 
-ext['tomcat.version'] = '9.0.63'  // Updated Tomcat version
+ext['tomcat.version'] = '9.0.63'
 
 dependencies {
     implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
@@ -132,32 +146,32 @@ dependencies {
     implementation('org.apache.tomcat.embed:tomcat-embed-jasper')
     
     // Other dependencies
-    implementation('commons-collections:commons-collections:3.2.2')  // Updated version
+    implementation('commons-collections:commons-collections:3.2.2')
     implementation('org.hsqldb:hsqldb')
-    implementation('javax.mail:mail:1.4.7')  // Updated version
-    implementation('javax.xml.bind:jaxb-api:2.3.1')  // Updated version
-    implementation('xalan:xalan:2.7.2')  // Updated version
-    implementation('ch.qos.logback:logback-classic:1.2.11')  // Updated version
-    implementation('ch.qos.logback:logback-core:1.2.11')  // Updated version
+    implementation('javax.mail:mail:1.4.7')
+    implementation('javax.xml.bind:jaxb-api:2.3.1')
+    implementation('xalan:xalan:2.7.2')
+    implementation('ch.qos.logback:logback-classic:1.2.11')
+    implementation('ch.qos.logback:logback-core:1.2.11')
     
     // Test dependencies
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
     testImplementation('org.springframework.security:spring-security-test')
-    testImplementation('com.github.docker-java:docker-java:3.2.13')  // Updated version
+    testImplementation('com.github.docker-java:docker-java:3.2.13')
     testImplementation('com.github.mike10004:littleproxy:1.1.3socksmod1')
-    testImplementation('io.github.bonigarcia:webdrivermanager:5.2.0')  // Updated version
+    testImplementation('io.github.bonigarcia:webdrivermanager:5.2.0')
     testImplementation('org.mockito:mockito-core')
-    testImplementation('org.seleniumhq.selenium:selenium-api:4.3.0')  // Updated version
-    testImplementation('org.seleniumhq.selenium:selenium-remote-driver:4.3.0')  // Updated version
-    testImplementation('org.seleniumhq.selenium:selenium-firefox-driver:4.3.0')  // Updated version
-    testImplementation('org.seleniumhq.selenium:selenium-support:4.3.0')  // Updated version
-    testImplementation('org.testng:testng:6.14.3')  // Updated version
-    testImplementation('com.squareup.okhttp3:mockwebserver:4.9.3')  // Updated version
+    testImplementation('org.seleniumhq.selenium:selenium-api:4.3.0')
+    testImplementation('org.seleniumhq.selenium:selenium-remote-driver:4.3.0')
+    testImplementation('org.seleniumhq.selenium:selenium-firefox-driver:4.3.0')
+    testImplementation('org.seleniumhq.selenium:selenium-support:4.3.0')
+    testImplementation('org.testng:testng:6.14.3')
+    testImplementation('com.squareup.okhttp3:mockwebserver:4.9.3')
     
     // JMH dependencies
-    jmh('org.openjdk.jmh:jmh-core:1.35')  // Updated version
-    jmh('org.openjdk.jmh:jmh-generator-annprocess:1.35')  // Updated version
-    jmh('org.apache.httpcomponents:httpclient:4.5.13')  // Updated version
+    jmh('org.openjdk.jmh:jmh-core:1.35')
+    jmh('org.openjdk.jmh:jmh-generator-annprocess:1.35')
+    jmh('org.apache.httpcomponents:httpclient:4.5.13')
 }
