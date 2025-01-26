@@ -15,6 +15,8 @@
  */
 package com.joshcummings.codeplay.terracotta;
 
+import com.joshcummings.codeplay.terracotta.http.HttpSupport;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.message.BasicNameValuePair;
@@ -35,10 +37,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -79,8 +79,6 @@ public class LoginEnumerationBenchmark {
 			.build();
 
 		Collection<RunResult> results = new Runner(opt).run();
-
-		List<Double> scoreForOtherUsernames = new ArrayList<>();
 
 		Map<String, Double> scoresByBenchmarkParam = new HashMap<>();
 
