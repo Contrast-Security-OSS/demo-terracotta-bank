@@ -55,6 +55,7 @@ import java.util.regex.Pattern;
 //@WebServlet("/makeDeposit")
 @MultipartConfig
 public class MakeDepositServlet extends HttpServlet {
+	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private static final long serialVersionUID = 1L;
