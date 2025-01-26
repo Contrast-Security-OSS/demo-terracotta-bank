@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerFactory;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -119,19 +120,27 @@ public class ContentParsingFilter implements Filter {
 		try {
 			InputStream body = request.getInputStream();
 			ObjectMapper objectMapper = new ObjectMapper();
-			objectMapper.enableDefaultTyping();
-			return objectMapper.readValue(body, HashMap.class);
+			// Replace deprecated enableDefaultTyping()
+			objectMapper.activateDefaultTyping(
+				objectMapper.getPolymorphicTypeValidator(),
+				ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE
+			);
+			return objectMapper.readValue(body, new TypeReference<HashMap<String, Object>>() {});
 		} catch ( Exception e ) {
 			throw new IllegalArgumentException(e);
 		}
 	}
 
-	// java deserialization
-
 	private Map<String, Object> javaDeserialize(HttpServletRequest request) {
 		try {
 			ObjectInputStream body = new ObjectInputStream(request.getInputStream());
-			return (Map<String, Object>) body.readObject();
+			Object obj = body.readObject();
+			if (obj instanceof Map) {
+				@SuppressWarnings("unchecked")
+				Map<String, Object> result = (Map<String, Object>) obj;
+				return result;
+			}
+			throw new IllegalArgumentException("Expected Map type");
 		} catch (Exception e) {
 			throw new IllegalArgumentException(e);
 		}
