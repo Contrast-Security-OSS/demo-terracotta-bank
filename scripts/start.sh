@@ -254,7 +254,7 @@ start_application() {
         -Dcontrast.agent.polling.app_activity_ms=1000 \
         -javaagent:"$SCRIPT_DIR/contrast-agent.jar" \
         -Dserver.port="$PORT" \
-        -jar "$SCRIPT_DIR/terracotta.war" >"$LOG_FILE" 2>&1 &
+        -jar "$SCRIPT_DIR/terracotta.jar" >"$LOG_FILE" 2>&1 &
 
     wait_for_server "$PORT" "$ENVIRONMENT"
 }
