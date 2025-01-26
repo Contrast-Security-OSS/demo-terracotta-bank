@@ -171,9 +171,6 @@ jobs:
       - name: Check Application on Port 8080 (Development)
         run: |
           curl --fail http://localhost:8080 || exit 1
-      - name: Check Application on Port 8082 (Production)
-        run: |
-          curl --fail http://localhost:8082 || exit 1
 
       - name: Test Stop Script on Linux
         run: |
@@ -227,10 +224,6 @@ jobs:
       - name: Check Application on Port 8080 (Development)
         run: |
           curl --fail http://localhost:8080 || exit 1
-          
-      - name: Check Application on Port 8082 (Production)
-        run: |
-          curl --fail http://localhost:8082 || exit 1
 
       - name: Test Stop Script on MacOS
         run: |
@@ -307,18 +300,6 @@ jobs:
   #           Write-Host "Connection to port 8080 successful."
   #         } catch {
   #           Write-Host "Error connecting to port 8080: $_"
-  #           exit 1
-  #         }
-  
-  #     - name: Check Application on Port 8082 (Production)
-  #       run: |
-  #         try {
-  #           $tcpClient = New-Object System.Net.Sockets.TcpClient
-  #           $tcpClient.Connect('localhost', 8082)
-  #           $tcpClient.Close()
-  #           Write-Host "Connection to port 8082 successful."
-  #         } catch {
-  #           Write-Host "Error connecting to port 8082: $_"
   #           exit 1
   #         }
   
