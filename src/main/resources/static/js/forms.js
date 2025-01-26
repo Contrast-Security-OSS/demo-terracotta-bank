@@ -67,32 +67,39 @@ $(function() {
 
 
 var submitCheckLookup = function(event) {
-	event.preventDefault();
-	
-	var formData = $(this).serialize();
-	
-	$.ajax({
-		url : $("body").data("page-context") + "/checkLookup?c=finance",
-		type : "POST",
-		data : formData,
-		dataType : "binary",
-		responseType : "arraybuffer",
-		success : function ( result ) {
-			$("#lookup :not([type~=submit]).form-control").val("");
-			var arrayBufferView = new Uint8Array( result )
-			var blob = new Blob([ arrayBufferView ]);//, {type: "image/jpg"});
-			var urlCreator = window.URL || window.webkitURL;
-			var url = urlCreator.createObjectURL(blob);
-			$("#deposit .messages").html("");
-			document.getElementById("checkImageDisplay").src = url;
-			document.getElementById("checkImageDisplay").style = "margin-bottom: 20px";
-		},
-		error : function ( jqXhr, status, message ) {
-			$("#lookup .messages").html(message);
-			document.getElementById("checkImageDisplay").src = "";
-			document.getElementById("checkImageDisplay").style = "";
-		}
-	});
+    event.preventDefault();
+    
+    var formData = $(this).serialize();
+    
+    $.ajax({
+        url : $("body").data("page-context") + "/checkLookup?c=finance",
+        type : "POST",
+        data : formData,
+        dataType : "binary",
+        responseType : "arraybuffer",
+        success : function ( result ) {
+            $("#lookup :not([type~=submit]).form-control").val("");
+            var arrayBufferView = new Uint8Array( result );
+            var blob = new Blob([ arrayBufferView ]);
+            var urlCreator = window.URL || window.webkitURL;
+            var url = urlCreator.createObjectURL(blob);
+            $("#deposit .messages").html("");
+            document.getElementById("checkImageDisplay").src = url;
+            document.getElementById("checkImageDisplay").style = "margin-bottom: 20px";
+        },
+        error : function ( jqXhr, status, message ) {
+            // Parse the JSON response and use the message
+            try {
+                var response = JSON.parse(jqXhr.responseText);
+                $("#lookup .messages").html(response.message);
+            } catch (e) {
+                // Fallback to the raw message if JSON parsing fails
+                $("#lookup .messages").html(message || "Bad Request");
+            }
+            document.getElementById("checkImageDisplay").src = "";
+            document.getElementById("checkImageDisplay").style = "";
+        }
+    });
 };
 
 var submitMoneyTransfer = function(event) {
