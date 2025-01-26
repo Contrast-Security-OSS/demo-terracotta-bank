@@ -143,7 +143,13 @@ dependencies {
     implementation('javax.servlet:jstl')
     implementation('org.apache.tomcat.embed:tomcat-embed-core')
     implementation('org.apache.tomcat.embed:tomcat-embed-jasper')
+
+    // Apache HTTP Client
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
     
+    // Apache Commons IO
+    implementation 'commons-io:commons-io:2.11.0'
+
     // Other dependencies
     implementation('commons-collections:commons-collections:3.2.2')
     implementation('org.hsqldb:hsqldb')
