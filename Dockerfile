@@ -26,13 +26,13 @@ RUN gradle build -x test --stacktrace --no-daemon
 
 #
 # RUNTIME STAGE
-# Take only the compilied application .jar file form the build stage above and run it in a JRE container.
+# Take only the compilied application .war file form the build stage above and run it in a JRE container.
 #
 FROM openjdk:8-jre-alpine as runtime
-COPY --from=build /home/gradle/src/build/libs/terracotta-bank-servlet-0.0.1-SNAPSHOT.jar /app/terracotta-bank-servlet-0.0.1-SNAPSHOT.jar
+COPY --from=build /home/gradle/src/build/libs/terracotta-bank-servlet-0.0.1-SNAPSHOT.war /app/terracotta-bank-servlet-0.0.1-SNAPSHOT.war
 WORKDIR /app
 EXPOSE 8080
-CMD ["java", "-jar", "terracotta-bank-servlet-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "terracotta-bank-servlet-0.0.1-SNAPSHOT.war"]
 
 #
 # CONTRAST STAGE
